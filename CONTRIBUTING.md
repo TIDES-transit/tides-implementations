@@ -8,7 +8,7 @@ Transit agencies, public-sector consortia, vendors, consultants, researchers, an
 
 ## What a contribution looks like
 
-A contribution is a new subfolder at the top level of this repository, named after your organization. The folder can contain as much or as little as you are willing to publish. At a minimum, it should contain a `README.md` that answers:
+A contribution is a new subfolder inside the appropriate category folder (`agencies/` or `vendors/`), named after your organization. The folder can contain as much or as little as you are willing to publish. At a minimum, it should contain a `README.md` that answers:
 
 - **Who:** your organization's name and a short description
 - **Who to contact:** name, role, email or GitHub handle for someone who can answer questions about the implementation
@@ -20,8 +20,8 @@ Beyond the README, you are welcome to include source code, architecture diagrams
 ## How to submit a contribution
 
 1. Fork this repository, or request write access from the maintainers if you plan to contribute regularly.
-2. Create a branch named for your organization (for example, `ac-transit/initial-publication`).
-3. Add a top-level subfolder with your organization's slug (for example, `ac-transit/`) and fill it with your README and any other content you want to share.
+2. Create a branch for your contribution.
+3. Inside the appropriate category folder (`agencies/` or `vendors/`), add a subfolder named after your organization and fill it with your README and any other content you want to share.
 4. Open a pull request against `main`. In the PR description, introduce your organization briefly and note any review feedback you would particularly value.
 5. A maintainer will review the PR for tone, clarity, and alignment with the repository's purpose. Substantive review of your implementation's technical content is not part of the maintainer review process; that is your organization's work to publish as you see fit.
 
