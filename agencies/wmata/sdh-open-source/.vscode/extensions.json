@@ -1,0 +1,19 @@
+{
+  "recommendations": [
+    "DavidAnson.vscode-markdownlint", // Markdown linting for consistent formatting
+    "charliermarsh.ruff", // Python linting & formatting
+    "redhat.vscode-yaml", // YAML support (Kubernetes, config files)
+    "ms-python.python", // Python language support
+    "editorconfig.editorconfig", // Enforce consistent coding styles
+    "innoverio.vscode-dbt-power-user", // dbt development support extension
+    "ms-azuretools.vscode-docker", // Docker container support
+    "hashicorp.terraform", // Infrastructure as Code (Terraform)
+    "ms-kubernetes-tools.vscode-kubernetes-tools", // Kubernetes resource navigation
+    "eamodio.gitlens", // Provides enhanced Git visualization
+    "esbenp.prettier-vscode", // Code formatting for various languages
+    "dorzey.vscode-sqlfluff", // SQL formatting and linting
+    "njpwerner.autodocstring", // docstring formatting - need to set to numpy
+    "github.vscode-pull-request-github", // GitHub PR management & inline annotations
+    "github.vscode-github-actions" // GitHub Actions workflow management & monitoring
+  ]
+}

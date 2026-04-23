@@ -1,0 +1,276 @@
+version: 2
+
+models:
+  - name: metric_trip_ridership
+    description: "Trip-level ridership summary aggregating total boardings across all stops for each trip performed for each service date."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `trip_id_performed`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: boardings
+        description: "{{ doc('field_trip_ridership_boardings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.not_null_proportion:
+              arguments:
+                at_least: 0.95
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+
+      - name: alightings
+        description: "{{ doc('field_trip_ridership_alightings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.not_null_proportion:
+              arguments:
+                at_least: 0.95
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+
+      - name: max_trip_stop_sequence
+        description: "{{ doc('field_trip_ridership_max_trip_stop_sequence') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+
+      - name: max_scheduled_stop_sequence
+        description: "{{ doc('field_trip_ridership_max_scheduled_stop_sequence') }}"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+
+      - name: has_first_stop_load_not_zero
+        description: "{{ doc('field_trip_ridership_first_stop_load_warning') }}"
+      - name: has_last_stop_load_not_zero
+        description: "{{ doc('field_trip_ridership_last_stop_load_warning') }}"
+      - name: has_negative_load
+        description: "{{ doc('field_trip_ridership_negative_load') }}"
+      - name: count_negative_load_stops
+        description: "{{ doc('field_trip_ridership_count_negative_load') }}"
+      - name: has_load_mismatch
+        description: "{{ doc('field_trip_ridership_load_mismatch') }}"
+      - name: count_load_mismatch_stops
+        description: "{{ doc('field_trip_ridership_count_load_mismatch') }}"
+      - name: on_off_ratio
+        description: "{{ doc('field_trip_ridership_on_off_ratio') }}"
+      - name: proportion_stops_served
+        description: "{{ doc('field_trip_ridership_proportion_stops_served') }}"
+
+  - name: metric_hourly_stop_ridership
+    description: "Hourly ridership summary by stop, aggregating boardings and alightings for each hour of each service date."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `stop_id`, `hour_of_calendar_date`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: calendar_date
+        description: "{{ doc('field_hourly_stop_ridership_calendar_date') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn # change to error after bringing in stop_id from gtfs
+                where: "service_date >= current_date - interval '3' day"
+      - name: hour_of_calendar_date
+        description: "{{ doc('field_hourly_stop_ridership_hour_of_calendar_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+                max_value: 23
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: boardings
+        description: "{{ doc('field_hourly_stop_ridership_boardings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: alightings
+        description: "{{ doc('field_hourly_stop_ridership_alightings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_activity
+        description: "{{ doc('field_hourly_stop_ridership_total_activity') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: metric_daily_stop_ridership
+    description: "Daily ridership summary by stop, aggregating total boardings and alightings for each service date."
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_activity = boardings + alightings"
+          config:
+            severity: warn
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `stop_id`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn # change to error after bringing in stop_id from gtfs
+                where: "service_date >= current_date - interval '3' day"
+      - name: boardings
+        description: "{{ doc('field_daily_stop_ridership_boardings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: alightings
+        description: "{{ doc('field_daily_stop_ridership_alightings') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_activity
+        description: "{{ doc('field_daily_stop_ridership_total_activity') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+
+              config:
+                severity: warn

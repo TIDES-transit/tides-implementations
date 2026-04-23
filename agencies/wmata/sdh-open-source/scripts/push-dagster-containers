@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# Default environment file (for backwards compatibility)
+ENV_FILE="${1:-.env}"
+
+# load environment file
+set -a && source "${ENV_FILE}" && set +a
+
+# The CONTAINER_REGISTRY should be set in the .env file, but we set a default repository name (for backwards compatibility)
+CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-[CONTAINER_REGISTRY]}"
+
+# Extract registry name (without .azurecr.io suffix if present)
+REGISTRY_NAME=$(echo "${CONTAINER_REGISTRY}" | sed 's/\.azurecr\.io$//')
+
+# Authenticate to ACR
+DOCKER_COMMAND=podman az acr login --name "${REGISTRY_NAME}"
+
+# Push pipelines image
+podman push ${CONTAINER_REGISTRY}/[project-name]-dagster-pipelines:latest
+
+# Push daemons image
+podman push ${CONTAINER_REGISTRY}/[project-name]-dagster-daemons:latest

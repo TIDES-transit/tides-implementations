@@ -1,0 +1,223 @@
+version: 2
+
+models:
+  - name: int_tides_vehicle_locations_bus_info_stop_id
+    description: "Intermediate model representing vehicle location pings by time."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_vehicle_locations_bus_info')
+          config:
+            severity: warn
+            meta:
+              dagster:
+                asset_key: ["int_tides_vehicle_locations_bus_info_stop_id"]
+    columns:
+      - &imp_location_ping_id
+        name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+      - &imp_service_date
+        name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+      - &imp_event_timestamp
+        name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+      - &imp_trip_id_performed
+        name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+      - &imp_trip_id_scheduled
+        name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+      - &imp_trip_stop_sequence
+        name: trip_stop_sequence
+        description: "{{ doc('field_vehicle_locations_trip_stop_sequence') }}"
+      - &imp_scheduled_stop_sequence
+        name: scheduled_stop_sequence
+        description: "{{ doc('field_vehicle_locations_scheduled_stop_sequence') }}"
+      - &imp_vehicle_id
+        name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+      - &imp_device_id
+        name: device_id
+        description: "{{ doc('field_vehicle_locations_device_id') }}"
+      - &imp_pattern_id
+        name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+      - &imp_stop_id
+        name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+      - &imp_current_status
+        name: current_status
+        description: "{{ doc('field_vehicle_locations_current_status') }}"
+      - &imp_latitude
+        name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+      - &imp_longitude
+        name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+      - &imp_gps_quality
+        name: gps_quality
+        description: "{{ doc('field_vehicle_locations_gps_quality') }}"
+      - &imp_heading
+        name: heading
+        description: "{{ doc('field_vehicle_locations_heading') }}"
+      - &imp_speed
+        name: speed
+        description: "{{ doc('field_vehicle_locations_speed') }}"
+      - &imp_odometer
+        name: odometer
+        description: "{{ doc('field_vehicle_locations_odometer') }}"
+      - &imp_schedule_deviation
+        name: schedule_deviation
+        description: "{{ doc('field_vehicle_locations_schedule_deviation') }}"
+      - &imp_headway_deviation
+        name: headway_deviation
+        description: "{{ doc('field_vehicle_locations_headway_deviation') }}"
+      - &imp_trip_type
+        name: trip_type
+        description: "{{ doc('field_vehicle_locations_trip_type') }}"
+      - &imp_schedule_relationship
+        name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - &imp_stop_id_imputed
+        name: stop_id_imputed
+        description: "{{ doc('field_vehicle_locations_stop_id_imputed') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: >
+                  service_date >= current_date - interval '3' day
+                  and schedule_relationship in ('Scheduled', 'Skipped')
+
+  - name: int_tides_vehicle_locations_imputation_trip_id
+    description: >
+      "Intermediate model used prior to int_tides_vehicle_locations_imputation to split logic."
+    columns:
+      - *imp_location_ping_id
+      - *imp_service_date
+      - *imp_event_timestamp
+      - *imp_trip_id_performed
+      - *imp_trip_id_scheduled
+      - *imp_trip_stop_sequence
+      - *imp_scheduled_stop_sequence
+      - *imp_vehicle_id
+      - *imp_device_id
+      - *imp_pattern_id
+      - *imp_stop_id
+      - *imp_current_status
+      - *imp_latitude
+      - *imp_longitude
+      - *imp_gps_quality
+      - *imp_heading
+      - *imp_speed
+      - *imp_odometer
+      - *imp_schedule_deviation
+      - *imp_headway_deviation
+      - *imp_trip_type
+      - *imp_schedule_relationship
+      - <<: *imp_stop_id_imputed
+        data_tests: []
+      - &imp_trip_id_performed_imputed
+        name: trip_id_performed_imputed
+        description: "{{ doc('field_trip_id_performed_imputed') }}"
+
+  - name: int_tides_vehicle_locations_stop_seq_indexed
+    description: >
+      Intermediate model (materialized as table) computing trip_stop_sequence_imputed for the
+      filtered subset of vehicle location pings (Scheduled/Skipped, non-null stop_id_imputed,
+      trip_stop_sequence not in 0/-1). Output is keyed on location_ping_id and LEFT JOINed
+      back to the full dataset in int_tides_vehicle_locations_imputation.
+    columns:
+      - name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - &imp_trip_stop_sequence_imputed
+        name: trip_stop_sequence_imputed
+        description: "{{ doc('field_trip_stop_sequence_imputed') }}"
+
+  - name: int_tides_vehicle_locations_imputation
+    description: >
+      "Reassign stop sequence in Bus info, based on the sequence of stop_id (ta_geo_id) appeared within service_date and trip_id."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_vehicle_locations_bus_info')
+          config:
+            severity: warn
+            meta:
+              dagster:
+                asset_key: ["int_tides_vehicle_locations_imputation"]
+    columns:
+      - *imp_location_ping_id
+      - *imp_service_date
+      - *imp_event_timestamp
+      - *imp_trip_id_performed
+      - *imp_trip_id_scheduled
+      - *imp_trip_stop_sequence
+      - *imp_scheduled_stop_sequence
+      - *imp_vehicle_id
+      - *imp_device_id
+      - *imp_pattern_id
+      - *imp_stop_id
+      - *imp_current_status
+      - *imp_latitude
+      - *imp_longitude
+      - *imp_gps_quality
+      - *imp_heading
+      - *imp_speed
+      - *imp_odometer
+      - *imp_schedule_deviation
+      - *imp_headway_deviation
+      - *imp_trip_type
+      - *imp_schedule_relationship
+      - *imp_trip_id_performed_imputed
+      - *imp_trip_stop_sequence_imputed
+
+  - name: int_tides_vehicle_locations_scheduled_stop_mapped
+    description: >
+      Intermediate model (materialized as table) computing scheduled_stop_sequence_imputed on
+      the distinct (one row per trip/stop) subset, before rejoining to the full vehicle
+      locations dataset. Reduces window function stages in int_tides_vehicle_locations_bus_info_scheduled_stop.
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - service_date
+              - trip_id_performed_imputed
+              - trip_stop_sequence_imputed
+              - stop_id
+          config:
+            severity: warn
+            where: "service_date >= current_date - interval '3' day"
+    columns:
+      - *imp_service_date
+      - *imp_trip_id_performed_imputed
+      - *imp_trip_stop_sequence_imputed
+      - *imp_stop_id
+      - name: scheduled_stop_sequence_imputed
+        description: "{{ doc('field_vehicle_location_scheduled_stop_sequence_imputed') }}"
+
+  - name: int_tides_vehicle_locations_bus_info_scheduled_stop
+    description: >
+      Joins bus info vehicle locations with GTFS scheduled stop sequences to impute the GTFS stop_sequence
+      for each stop visit.
+    columns:
+      - *imp_location_ping_id
+      - name: scheduled_stop_sequence_imputed
+        description: "{{ doc('field_vehicle_location_scheduled_stop_sequence_imputed') }}"
+      - *imp_service_date
+      - *imp_trip_id_performed_imputed
+      - *imp_trip_stop_sequence_imputed
+      - *imp_trip_stop_sequence
+      - *imp_stop_id
+      - *imp_schedule_relationship
+      - *imp_event_timestamp

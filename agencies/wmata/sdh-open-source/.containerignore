@@ -1,0 +1,28 @@
+# Start with only including pipelines, warehouse, and uv
+/*/
+!/pyproject.toml
+!/uv.lock
+!/pipelines/
+!/warehouse/
+
+# Exclude all junk
+**/__pycache__/
+**/.venv/
+**/.*
+**/*.md
+**/*.duckdb
+**/example.env
+
+# Exclude ignored Dagster content
+/pipelines/docker-compose/
+/pipelines/logs/
+/pipelines/Containerfile
+/pipelines/docker-compose.yaml
+
+# Exclude ignored dbt conent
+/warehouse/data-load-scripts/
+!/warehouse/docs/*.md
+/warehouse/dbt_packages/
+/warehouse/logs/
+/warehouse/target/
+/warehouse/profiles.yml

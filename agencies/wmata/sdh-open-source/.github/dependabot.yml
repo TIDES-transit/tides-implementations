@@ -1,0 +1,39 @@
+# To get started with Dependabot version updates, you'll need to specify which
+# package ecosystems to update and where the package manifests are located.
+# Please see the documentation for all configuration options:
+# https://docs.github.com/code-security/dependabot/dependabot-version-updates/configuration-options-for-the-dependabot.yml-file
+
+version: 2
+multi-ecosystem-groups:
+  # per https://github.com/dependabot/dependabot-core/issues/12609
+  # "This is actually supported, but not properly documented anywhere."
+  python:
+    schedule:
+      interval: "weekly" # or whatever schedule you want
+      day: "tuesday"
+      time: "04:00"
+    target-branch: "main"
+    commit-message:
+      prefix: "deps"
+      include: "scope"
+    open-pull-requests-limit: 5
+    rebase-strategy: "auto"
+    assignees:
+      - "[user redacted]"
+updates:
+  - package-ecosystem: "pip"
+    directory: "/"
+    multi-ecosystem-group: python
+    labels:
+      - "deps"
+      - "pip"
+    patterns:
+      - "*"
+  - package-ecosystem: "uv"
+    directory: "/"
+    multi-ecosystem-group: python
+    labels:
+      - "deps"
+      - "uv"
+    patterns:
+      - "*"

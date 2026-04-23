@@ -1,0 +1,75 @@
+version: 2
+
+models:
+  - name: fct_tides_passenger_events_faregates_quality
+    description: >
+      Quality model for passenger events. This model performs quality checks on the passenger_events
+      intermediate model, validating required fields, checking for duplicates, and ensuring values
+      conform to expected formats.
+      This implementation aligns with the TIDES schema modification as proposed by [AGENCY]
+      and currently under consideration by the TIDES contributors. The key modifications are:
+      1. Make device_id required in passenger_events instead of vehicle_id
+      2. Make trip_stop_sequence optional when the event is not associated with a trip
+      3. Add an optional linked_transaction_id field to link to fare_transactions
+    config:
+      tags: ["tides", "faregate", "passenger_events", "quality"]
+
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+      - name: row_hash
+        description: "{{ doc('field_row_hash') }}"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: has_passenger_event_id
+        description: "{{ doc('field_has_passenger_event_id') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_passenger_service_date') }}"
+      - name: has_event_timestamp
+        description: "{{ doc('field_has_passenger_event_timestamp') }}"
+      - name: has_event_type
+        description: "{{ doc('field_has_event_type') }}"
+      - name: has_device_id
+        description: "{{ doc('field_has_device_id') }}"
+      - name: has_valid_event_type
+        description: "{{ doc('field_has_valid_event_type') }}"
+      - name: passenger_event_id
+        description: "{{ doc('field_passenger_event_id') }}"
+      - name: service_date
+        description: "{{ doc('field_passenger_event_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_passenger_event_event_timestamp') }}"
+      - name: location_ping_id
+        description: "{{ doc('field_passenger_event_location_ping_id') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_passenger_event_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_passenger_event_trip_id_scheduled') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_passenger_event_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_passenger_event_scheduled_stop_sequence') }}"
+      - name: event_type
+        description: "{{ doc('field_passenger_event_event_type') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_passenger_event_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_passenger_event_device_id') }}"
+      - name: train_car_id
+        description: "{{ doc('field_passenger_event_train_car_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_passenger_event_stop_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_passenger_event_pattern_id') }}"
+      - name: event_count
+        description: "{{ doc('field_passenger_event_event_count') }}"
+      - name: linked_transaction_id
+        description: "{{ doc('field_passenger_event_linked_transaction_id') }}"
+      - name: source_system
+        description: "{{ doc('field_passenger_event_source_system') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+      - name: invalid_reason
+        description: "{{ doc('field_passenger_event_invalid_reason') }}"

@@ -1,0 +1,12 @@
+# Ignore actual configuration files
+config.json
+
+# Ignore local environment files
+.env
+.env.local
+
+# Ignore Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/

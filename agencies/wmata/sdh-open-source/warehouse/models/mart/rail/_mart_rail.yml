@@ -1,0 +1,117 @@
+version: 2
+
+models:
+  - name: fct_tides_station_activities
+    description: >
+      Fact table for rail station activities aggregated by hour with clear separation between
+      physical movement and payment metrics to avoid double-counting.
+
+      PHYSICAL ACTIVITY METRICS (from faregate sensors only):
+      - total_entries: People physically entering stations (faregate_data_ORGN data)
+      - total_exits: People physically exiting stations (faregate_data_ORGN data)
+
+      PAYMENT TRANSACTION METRICS (from FARE and vendor_2 only):
+      - entry_transactions: Successful fare payments on entry
+      - exit_transactions: Successful fare payments on exit
+      - number_of_transactions: Total successful fare payments
+
+      This design enables analysis of ridership patterns, payment adoption, and fare compliance.
+    config:
+      tags: ["tides", "rail", "mart"]
+    columns:
+      - name: service_date
+        description: "{{ doc('field_station_activities_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_id
+        description: "{{ doc('field_station_activities_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_start
+        description: "{{ doc('field_station_activities_time_period_start') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_end
+        description: "{{ doc('field_station_activities_time_period_end') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_category
+        description: "{{ doc('field_station_activities_time_period_category') }}"
+      - name: total_entries
+        description: >
+          Count of people who physically entered rail stations, based on faregate sensor data only.
+          This represents actual ridership regardless of payment status.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              name: non_negative_total_entries
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_exits
+        description: >
+          Count of people who physically exited rail stations, based on faregate sensor data only.
+          This represents actual ridership regardless of payment status.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              name: non_negative_total_exits
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: entry_transactions
+        description: >
+          Count of successful fare payments on entry from FARE (SmarTrip) and vendor_2 (open payment) systems.
+          Excludes physical faregate events to avoid double-counting.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              name: non_negative_entry_transactions
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: exit_transactions
+        description: >
+          Count of successful fare payments on exit from FARE (SmarTrip) and vendor_2 (open payment) systems.
+          Excludes physical faregate events to avoid double-counting.
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              name: non_negative_exit_transactions
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: number_of_transactions
+        description: "{{ doc('field_station_activities_number_of_transactions') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              name: non_negative_number_of_transactions
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: bike_entries
+        description: "{{ doc('field_station_activities_bike_entries') }}"
+      - name: bike_exits
+        description: "{{ doc('field_station_activities_bike_exits') }}"
+      - name: ramp_entries
+        description: "{{ doc('field_station_activities_ramp_entries') }}"
+      - name: ramp_exits
+        description: "{{ doc('field_station_activities_ramp_exits') }}"

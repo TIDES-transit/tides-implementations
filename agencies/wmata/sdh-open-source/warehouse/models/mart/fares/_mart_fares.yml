@@ -1,0 +1,164 @@
+version: 2
+
+models:
+  - name: fct_tides_fare_transactions
+    description: >
+      Fare transactions conforming to the TIDES fare_transactions schema with basic validity ensured.
+      This model integrates SmarTrip card data from FARE (FARE_SALE and FARE_USE) and open payment data
+      from vendor_2, in alignment with the TIDES schema modification proposal by [AGENCY].
+      Only valid records from both quality tables are included in this final mart table.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `device_id`, `source_system`, `transaction_id`, `event_timestamp`, and `fare_action`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: transaction_id
+        description: "{{ doc('field_transaction_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: event_timestamp
+        description: "{{ doc('field_event_timestamp') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: location_ping_id
+        description: "{{ doc('field_location_ping_id') }}"
+      - name: amount
+        description: "{{ doc('field_amount') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: currency_type
+        description: "{{ doc('field_currency_type') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["USD"]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "Purchase",
+                    "Enter",
+                    "Exit",
+                    "Transfer entrance",
+                    "Transfer exit",
+                    "Add",
+                    "New",
+                    "Capture",
+                    "Extend",
+                    "Combine",
+                    "Void",
+                    "Activate",
+                    "Adjust",
+                    "Other",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id_performed
+        description: "{{ doc('field_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trip_id_scheduled') }}"
+      - name: pattern_id
+        description: "{{ doc('field_pattern_id') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_device_id') }}"
+      - name: fare_id
+        description: "{{ doc('field_fare_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_id') }}"
+      - name: num_riders
+        description: "{{ doc('field_num_riders') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "> 0"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: fare_media_id
+        description: "{{ doc('field_fare_media_id') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "Cash or coins",
+                    "Smart card or ticket",
+                    "Magnetic-stripe card or ticket",
+                    "Bank card",
+                    "Mobile NFC",
+                    "Optical scan",
+                    "Button pressed by driver or operator to indicate a boarding or alighting passenger.",
+                    "Other type",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: rider_category
+        description: "{{ doc('field_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_fare_product') }}"
+      - name: fare_period
+        description: "{{ doc('field_fare_period') }}"
+      - name: fare_capped
+        description: "{{ doc('field_fare_capped') }}"
+      - name: token_id
+        description: "{{ doc('field_token_id') }}"
+      - name: balance
+        description: "{{ doc('field_balance') }}"
+      - name: source_system
+        description: "{{ doc('field_source_system') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["FARE_SALE", "FARE_USE", "vendor_2"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"

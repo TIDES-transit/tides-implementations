@@ -1,0 +1,253 @@
+#!/usr/bin/env bash
+
+# This is a setup script for an Ubuntu-flavored environment.
+# You may need to modify install steps, particularly for package install (e.g., `unzip`, `libaio` stuff)
+# based on the Linux variant you are using
+
+# NOTE: cannot be run as sudo/root or else annoying things happen
+# exit early if so
+
+if [ "$(id -u)" = 0 ]; then
+   echo "This script cannot be run as root."
+   echo "Please run as your regular user and enter your sudo password when prompted."
+   exit 1
+fi
+
+
+# Auto-detect project root and run from there - mostly just to facilitate running from within root/scripts
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [[ "$SCRIPT_DIR" == */scripts ]]; then
+    PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+else
+    PROJECT_ROOT="$SCRIPT_DIR"
+fi
+
+echo "Detected project root: $PROJECT_ROOT"
+cd "$PROJECT_ROOT"
+
+set -e
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+BLUE='\033[0;34m'
+NC='\033[0m'
+
+log() {
+    echo -e "${BLUE}[$(date +'%Y-%m-%d %H:%M:%S')]${NC} $1"
+}
+
+error() {
+    echo -e "${RED}[ERROR]${NC} $1" >&2
+}
+
+success() {
+    echo -e "${GREEN}[SUCCESS]${NC} $1"
+}
+
+warning() {
+    echo -e "${YELLOW}[WARNING]${NC} $1"
+}
+
+command_exists() {
+    command -v "$1" >/dev/null 2>&1
+}
+
+# 0. Ensure asdf and python build dependencies are installed
+if ! command_exists asdf; then
+    error "asdf is not installed"
+    echo "Run scripts/bootstrap-avd or follow https://asdf-vm.com/guide/getting-started.html"
+    exit 1
+fi
+
+if command_exists apt; then
+    log "Ensuring python build dependencies installed..."
+    sudo apt update
+    sudo apt install -y build-essential gdb lcov pkg-config \
+      libbz2-dev libffi-dev libgdbm-dev libgdbm-compat-dev liblzma-dev \
+      libncurses5-dev libreadline6-dev libsqlite3-dev libssl-dev \
+      lzma lzma-dev tk-dev uuid-dev zlib1g-dev libzstd-dev \
+      inetutils-inetd libatomic1
+    success "Python build dependencies installed"
+fi
+
+# 1. Ensure all tools are installed
+log "Adding asdf plugins..."
+while read -r line; do
+    # Skip empty lines
+    [[ -z "$line" ]] && continue
+    # Skip comment lines (lines starting with #)
+    [[ "${line:0:1}" == "#" ]] && continue
+    tool=$(echo "$line" | awk '{print $1}')
+    asdf plugin add "$tool" 2>/dev/null || true
+done < .tool-versions
+success "asdf plugins installed"
+
+log "Installing asdf tools..."
+asdf install
+success "asdf tools installed"
+
+# 2. Create virtual environment
+log "Creating virtual environment..."
+if [ -d ".venv" ]; then
+    warning "Virtual environment already exists"
+else
+    uv venv
+    success "Virtual environment created"
+fi
+
+# 3. Sync uv
+log "Syncing dependencies..."
+if [ -f "pyproject.toml" ]; then
+    uv sync
+    success "Dependencies synced from pyproject.toml"
+else
+    warning "No pyproject.toml found -- are you in the repo?"
+fi
+
+# 4. Activate virtual environment
+log "Activating virtual environment..."
+source .venv/bin/activate
+success "Virtual environment activated"
+
+# 5. Install pre-commit hooks
+log "Setting up pre-commit..."
+if ! command_exists pre-commit; then
+    uv pip install pre-commit
+fi
+
+pre-commit install
+success "Pre-commit hooks installed"
+
+# 6. Download Oracle Instant Client - get `unzip` package for Ubuntu
+log "Setting up Oracle Instant Client..."
+
+# Oracle setup stuff -- this is most likely to fail later -----------------------------------------
+ORACLE_DIR="$HOME/oracle"
+INSTANTCLIENT_DIR="$ORACLE_DIR/instantclient"
+mkdir -p "$INSTANTCLIENT_DIR"
+
+ORACLE_ZIP="instantclient-basic-linuxx64.zip"
+
+if [ ! -f "$INSTANTCLIENT_DIR/$ORACLE_ZIP" ]; then
+    log "Downloading Oracle Instant Client..."
+    wget -O "$INSTANTCLIENT_DIR/$ORACLE_ZIP" "https://download.oracle.com/otn_software/linux/instantclient/$ORACLE_ZIP"
+    success "Oracle Instant Client downloaded"
+fi
+
+if [ -f "$INSTANTCLIENT_DIR/$ORACLE_ZIP" ]; then
+    log "Extracting Oracle Instant Client..."
+    cd "$INSTANTCLIENT_DIR"
+    unzip -o "$ORACLE_ZIP"
+
+    EXTRACTED_DIR=$(find . -maxdepth 1 -type d -name "instantclient*" | head -1)
+    if [ -n "$EXTRACTED_DIR" ]; then
+        success "Oracle Instant Client extracted to $INSTANTCLIENT_DIR/$EXTRACTED_DIR"
+
+        FULL_INSTANTCLIENT_PATH="$INSTANTCLIENT_DIR/${EXTRACTED_DIR#./}"
+
+        export LD_LIBRARY_PATH="$FULL_INSTANTCLIENT_PATH:$LD_LIBRARY_PATH"
+
+        # Export for session, then append to ~/.bashrc
+        if ! grep -q "$FULL_INSTANTCLIENT_PATH" ~/.bashrc; then
+            echo "export LD_LIBRARY_PATH=$FULL_INSTANTCLIENT_PATH:\$LD_LIBRARY_PATH" >> ~/.bashrc
+            success "LD_LIBRARY_PATH added to ~/.bashrc"
+        else
+            warning "LD_LIBRARY_PATH already configured in ~/.bashrc"
+        fi
+
+        # Check if libaio symlink already exists - mostly defensive here
+        if [ ! -L "/usr/lib/libaio.so.1" ]; then
+            sudo ln -s /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/libaio.so.1
+            success "libaio symlink created"
+        else
+            warning "libaio symlink already exists"
+        fi
+
+        cd "$PROJECT_ROOT"
+    else
+        error "Failed to find extracted Oracle Instant Client directory"
+        exit 1
+    fi
+else
+    error "Oracle Instant Client ZIP file not found at $INSTANTCLIENT_DIR/$ORACLE_ZIP"
+    exit 1
+fi
+
+# 7. Test Oracle setup
+log "Testing Oracle database connectivity..."
+uv pip install oracledb
+
+# Test Python oracledb import and driver initialization
+python3 << 'EOF'
+try:
+    import oracledb
+    print("oracledb module imported")
+
+    # Initialize the driver
+    oracledb.init_oracle_client()
+    print("oracle client initialized successfully")
+
+    print("Oracle setup test completed")
+except Exception as e:
+    print(f"ERROR - Oracle connectivity test failed: {e}")
+    exit(1)
+EOF
+
+if [ $? -eq 0 ]; then
+    success "Oracle connectivity test passed"
+else
+    error "!! Oracle connectivity test failed, check LD_LIBRARY_PATH, oracle url in script, or unzip location !!"
+    exit 1
+fi
+
+# 8. Change to warehouse directory and run dbt deps
+if [ -d "warehouse" ]; then
+    log "Setting up dbt in warehouse directory..."
+    cd warehouse
+
+    if ! uv pip show dbt-core >/dev/null 2>&1; then
+        log "Installing dbt..."
+        uv pip install dbt-core dbt-oracle
+    fi
+
+    dbt deps
+    success "dbt dependencies installed"
+
+    if [ -f "profile.yml.template" ]; then
+        cp profile.yml.template profile.yml
+    fi
+
+    cd "$PROJECT_ROOT"
+else
+    warning "warehouse directory not found"
+fi
+
+# 9. Install azure CLI
+curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+# 10. Install OpenTofu and Podman
+log "Installing OpenTofu and Podman for infrastructure development..."
+if ! command_exists tofu; then
+    sudo snap install opentofu --classic
+fi
+sudo apt install -y podman
+success "Podman installed"
+
+# 11. Wrap-up - append parameters to .env with placeholders, give next steps
+
+touch .env
+echo "[Project Name]_ENVIRONMENT=[AGENCY]" >> .env
+echo "AZURE_GTFS_STORAGE_ACCOUNT=get-me-from-azure" >> .env
+echo "AZURE_FARE_STORAGE_ACCOUNT=get-me-from-azure" >> .env
+echo "KEY_VAULT_NAME=get-me-from-azure" >> .env
+echo "DAGSTER_HOME=$PROJECT_ROOT/.dagster_home" >> .env
+
+success "Development environment setup completed!"
+
+log "Results and To Do:"
+echo "  - uv installed, .venv created, dependencies synced, pre-commit configured, oracle driver configured & tested, dbt setup"
+echo "  1) Run 'source ~/.bashrc' to refresh the environment. "
+echo "  2) Activate .venv with 'source .venv/bin/activate'"
+echo "  3) Authenticate with azure with 'az login'"
+echo "  4) Update the .env in the repo root with parameters from Azure"
+echo "  5) You will also need to activate JIT permissions. See pipelines/README.md"

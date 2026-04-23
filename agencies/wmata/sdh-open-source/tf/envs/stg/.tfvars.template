@@ -1,0 +1,134 @@
+# Terraform Variables for [Project Name]
+#
+# This template is organized by deployment step. Copy it to a file named
+# .auto.tfvars and tofu will recognize it automatically. See README.md for
+# details on the staged deployment process and why each variable is needed.
+
+# =============================================================================
+# STEP 1: Initial Configuration
+# =============================================================================
+# These variables are required before any deployment can begin.
+
+# Azure subscription and resource group
+arm_subscription_id     = "<subscription-id>"
+resource_group_name     = "<resource-group-name>"
+resource_group_location = "eastus"
+
+# Naming conventions
+system_name      = "[Project Name]"
+environment_name = "<environment-name>"  # e.g., "[env1]", "[env2]", "prd"
+sys_short        = "[project]"
+env_short        = "<env-short>"  # e.g., "[env1]", "[env2]", "prd"
+
+# Configuration flags (start with all false, enable as prerequisites are met)
+has_network         = false
+has_db_registration = false
+has_entra           = false
+
+# =============================================================================
+# STEP 3: Network Resources
+# =============================================================================
+# These variables are required when has_network = true.
+# Prerequisites: [AGENCY] must create the subnets first.
+
+# Subnet resource IDs (provided by [AGENCY])
+cae_subnet_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Network/virtualNetworks/<vnet-name>/subnets/<aca-subnet-name>"
+pe_subnet_id  = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Network/virtualNetworks/<vnet-name>/subnets/<pe-subnet-name>"
+
+# DNS zone for private endpoints
+dns_zone_subscription_id     = "<dns-zone-subscription-id>"
+dns_zone_resource_group_name = "<dns-zone-resource-group-name>"
+
+# =============================================================================
+# STEP 4: Database Resources
+# =============================================================================
+# These variables are optional and used when has_db_registration = true.
+
+# Public network access (default false; enable temporarily for direct access during setup)
+# public_network_access_enabled = true
+
+# Development access (optional - for direct database access during development)
+# psql_firewall_rules = {
+#   "allow-developer-name" = {
+#     start_ip_address = "x.x.x.x"
+#     end_ip_address   = "x.x.x.x"
+#   }
+# }
+
+# =============================================================================
+# STEP 5: Entra-Dependent Resources
+# =============================================================================
+# These variables are required when has_entra = true.
+# Prerequisites: [AGENCY] must create app registrations and assign roles.
+
+# App Registrations
+# ~~~~~~~~~~~~~~~~~
+# You can find app registration object IDs in the Azure portal, or with the
+# following `az` command:
+#
+#   az ad app list --display-name "<app-display-name>" --query "[0].id" --output tsv
+#
+lakekeeper_app_registration_object_id   = "<object-id>"
+trino_app_registration_object_id        = "<object-id>"
+dagster_app_registration_object_id      = "<object-id>"
+openmetadata_app_registration_object_id = "<object-id>"
+
+# Service Principals
+# ~~~~~~~~~~~~~~~~~~
+# You can find service principal IDs with the following `az` command:
+#
+#   az ad sp list --display-name "<app-display-name>" --query "[0].id" --output tsv
+#
+lakekeeper_app_service_principal_object_id   = "<object-id>"
+trino_app_service_principal_object_id        = "<object-id>"
+dagster_app_service_principal_object_id      = "<object-id>"
+openmetadata_app_service_principal_object_id = "<object-id>"
+
+# App Client IDs (for identifier URIs)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# You can find client IDs with:
+#
+#   az ad app list --display-name "<app-display-name>" --query "[0].appId" --output tsv
+#
+lakekeeper_app_registration_client_id   = "<client-id>"
+trino_app_registration_client_id        = "<client-id>"
+dagster_app_registration_client_id      = "<client-id>"
+openmetadata_app_registration_client_id = "<client-id>"
+
+# App Client Secrets (store securely - these are sensitive)
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# These must be created manually in the Azure portal for each app registration.
+#
+lakekeeper_app_registration_client_secret   = "<client-secret>"
+trino_app_registration_client_secret        = "<client-secret>"
+dagster_app_registration_client_secret      = "<client-secret>"
+openmetadata_app_registration_client_secret = "<client-secret>"
+
+# OAuth2 Permission Scopes
+# ~~~~~~~~~~~~~~~~~~~~~~~~
+# Permission scope IDs for app-to-app authentication.
+#
+lakekeeper_oauth2_permission_scope_id = "<scope-id>"
+
+# User & developer groups for access control
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Object IDs for the groups that should have access to the data hub.
+# Users group has read-only query access; developers group has admin access to data.
+#
+#   az ad group list --display-name "<group-name>" --query "[0].id" --output tsv
+#
+datahub_users_group_id      = "<object-id>"
+datahub_developers_group_id = "<object-id>"
+
+# =============================================================================
+# OPTIONAL: Application Configuration
+# =============================================================================
+# These variables have sensible defaults but can be overridden.
+
+# Dagster configuration
+# dagster_image_tag          = "latest"
+# [Project Name]_environment   = "[env1]"  # Must match environment_name; default is "[env3]"
+
+# OpenMetadata configuration
+# openmetadata_principal_domain = "[AGENCY].com"
+# openmetadata_initial_admin    = "admin"

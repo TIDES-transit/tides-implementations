@@ -1,0 +1,181 @@
+name: pre-commit
+permissions:
+  contents: read
+  checks: write
+  pull-requests: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - "**"
+
+jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      python: ${{ steps.filter.outputs.python }}
+      sql: ${{ steps.filter.outputs.sql }}
+      markdown: ${{ steps.filter.outputs.markdown }}
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: dorny/paths-filter@v4
+        id: filter
+        with:
+          base: "main"
+          filters: |
+            python:
+              - '**/*.py'
+            sql:
+              - 'warehouse/**/*.sql'
+              - '!warehouse/data-clean-scripts/**'
+              - '!warehouse/macros/**'
+            markdown:
+              - '**/*.md'
+              - '!.clinerules/**'
+              - '!warehouse/dbt_packages/**'
+              - '!.venv/**'
+
+  ruff:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.python == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Get changed Python files
+        id: changed
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            **/*.py
+          base_sha: origin/main
+
+      - uses: astral-sh/ruff-action@v3
+        if: steps.changed.outputs.any_changed == 'true'
+        with:
+          src: ${{ steps.changed.outputs.all_changed_files }}
+
+  markdownlint:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.markdown == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Get changed Markdown files
+        id: changed
+        uses: tj-actions/changed-files@v47
+        with:
+          files: |
+            **/*.md
+          files_ignore: |
+            .clinerules/**
+            warehouse/dbt_packages/**
+            .venv/**
+          separator: "\n"
+          base_sha: origin/main
+
+      - uses: DavidAnson/markdownlint-cli2-action@v19
+        if: steps.changed.outputs.any_changed == 'true'
+        with:
+          config: ".markdownlint.json"
+          globs: ${{ steps.changed.outputs.all_changed_files }}
+
+  sqlfluff:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.sql == 'true'
+    runs-on: ubuntu-latest
+    env:
+      DBT_PROFILES_DIR: warehouse
+      DBT_TARGET: local
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: Read tool versions
+        id: versions
+        run: |
+          echo "python-version=$(grep '^python ' .tool-versions | awk '{print $2}')" >> $GITHUB_OUTPUT
+          echo "uv-version=$(grep '^uv ' .tool-versions | awk '{print $2}')" >> $GITHUB_OUTPUT
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: ${{ steps.versions.outputs.python-version }}
+
+      - uses: astral-sh/setup-uv@v7
+        with:
+          version: ${{ steps.versions.outputs.uv-version }}
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Cache dbt packages
+        uses: actions/cache@v5
+        with:
+          path: warehouse/dbt_packages
+          key: dbt-packages-${{ runner.os }}-${{ hashFiles('warehouse/packages.yml') }}
+
+      - name: Cache pre-commit environments
+        uses: actions/cache@v5
+        with:
+          path: ~/.cache/pre-commit
+          key: precommit-${{ runner.os }}-${{ hashFiles('.pre-commit-config.yaml') }}
+
+      - name: Setup dbt
+        run: |
+          cat > warehouse/profiles.yml << 'EOF'
+          warehouse:
+            outputs:
+              local:
+                type: duckdb
+                path: ./warehouse.duckdb
+                schema: ci
+            target: local
+          EOF
+          uv sync --group linters
+          cd warehouse && uv run dbt deps
+
+      - name: Run SQLFluff via pre-commit
+        run: |
+          uv run pre-commit run --hook-stage manual sqlfluff-lint-ci --from-ref origin/main --to-ref HEAD
+
+  other-hooks:
+    runs-on: ubuntu-latest
+    env:
+      SKIP: "ruff,ruff-format,markdownlint,sqlfluff-lint,sqlfluff-fix"
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.x"
+
+      - uses: pre-commit/action@v3.0.1
+        with:
+          extra_args: --from-ref origin/main --to-ref HEAD
+
+  # Single status check for branch protection
+  pre-commit:
+    runs-on: ubuntu-latest
+    needs: [detect-changes, ruff, markdownlint, sqlfluff, other-hooks]
+    if: always()
+    steps:
+      - name: Check results
+        run: |
+          results="${{ needs.ruff.result }},${{ needs.markdownlint.result }},${{ needs.sqlfluff.result }},${{ needs.other-hooks.result }}"
+          if echo "$results" | grep -q "failure"; then
+            echo "❌ Pre-commit checks failed"
+            echo "::notice::Fix locally with: uv run pre-commit run --all-files"
+            exit 1
+          fi
+          echo "✅ All pre-commit checks passed"

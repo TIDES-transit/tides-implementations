@@ -1,0 +1,273 @@
+version: 2
+
+models:
+  # GTFS agency
+  - name: stg_gtfs_agency
+    description: >
+      Staging model for GTFS agency table.
+    columns:
+      - &feed_hash
+        name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: agency_id
+        description: "{{ doc('field_gtfs_agency_id') }}"
+      - name: agency_name
+        description: "{{ doc('field_gtfs_agency_name') }}"
+      - name: agency_url
+        description: "{{ doc('field_gtfs_agency_url') }}"
+      - name: agency_timezone
+        description: "{{ doc('field_gtfs_agency_timezone') }}"
+      - name: agency_lang
+        description: "{{ doc('field_gtfs_agency_lang') }}"
+      - name: agency_phone
+        description: "{{ doc('field_gtfs_agency_phone') }}"
+      - name: agency_fare_url
+        description: "{{ doc('field_gtfs_agency_fare_url') }}"
+      - name: agency_email
+        description: "{{ doc('field_gtfs_agency_email') }}"
+  # GTFS calendar dates
+  - name: stg_gtfs_calendar_dates
+    description: >
+      Staging model for GTFS calendar dates table.
+    columns:
+      - <<: *feed_hash
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: date
+        description: "{{ doc('field_gtfs_date') }}"
+      - name: exception_type
+        description: "{{ doc('field_gtfs_exception_type') }}"
+
+  # GTFS calendar
+  - name: stg_gtfs_calendar
+    description: >
+      Staging model for GTFS calendar table of service_ids.
+    columns:
+      - <<: *feed_hash
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: monday
+        description: "{{ doc('field_gtfs_monday') }}"
+      - name: tuesday
+        description: "{{ doc('field_gtfs_tuesday') }}"
+      - name: wednesday
+        description: "{{ doc('field_gtfs_wednesday') }}"
+      - name: thursday
+        description: "{{ doc('field_gtfs_thursday') }}"
+      - name: friday
+        description: "{{ doc('field_gtfs_friday') }}"
+      - name: saturday
+        description: "{{ doc('field_gtfs_saturday') }}"
+      - name: sunday
+        description: "{{ doc('field_gtfs_sunday') }}"
+      - name: start_date
+        description: "{{ doc('field_gtfs_start_date') }}"
+      - name: end_date
+        description: "{{ doc('field_gtfs_end_date') }}"
+
+  # GTFS routes
+  - name: stg_gtfs_routes
+    description: >
+      Staging model for GTFS routes table.
+    columns:
+      - <<: *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: agency_id
+        description: "{{ doc('field_gtfs_agency_id_routes') }}"
+      - name: route_short_name
+        description: "{{ doc('field_gtfs_route_short_name') }}"
+      - name: route_long_name
+        description: "{{ doc('field_gtfs_route_long_name') }}"
+      - name: route_desc
+        description: "{{ doc('field_gtfs_route_desc') }}"
+      - name: route_type
+        description: "{{ doc('field_gtfs_route_type') }}"
+      - name: route_url
+        description: "{{ doc('field_gtfs_route_url') }}"
+      - name: route_color
+        description: "{{ doc('field_gtfs_route_color') }}"
+      - name: route_text_color
+        description: "{{ doc('field_gtfs_route_text_color') }}"
+
+  # Stop times
+  - name: stg_gtfs_stop_times
+    description: >
+      Staging model for GTFS stop times table.
+    columns:
+      - <<: *feed_hash
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: departure_time
+        description: "{{ doc('field_gtfs_departure_time') }}"
+      - name: arrival_time
+        description: "{{ doc('field_gtfs_arrival_time') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+      - name: stop_headsign
+        description: "{{ doc('field_gtfs_stop_headsign') }}"
+      - name: pickup_type
+        description: "{{ doc('field_gtfs_pickup_type') }}"
+      - name: drop_off_type
+        description: "{{ doc('field_gtfs_drop_off_type') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+      - name: timepoint
+        description: "{{ doc('field_gtfs_timepoint') }}"
+
+  - name: stg_gtfs_stops
+    description: >
+      Staging model for GTFS stops table.
+    columns:
+      - <<: *feed_hash
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_code
+        description: "{{ doc('field_gtfs_stop_code') }}"
+      - name: stop_name
+        description: "{{ doc('field_gtfs_stop_name') }}"
+      - name: stop_desc
+        description: "{{ doc('field_gtfs_stop_desc') }}"
+      - name: stop_lat
+        description: "{{ doc('field_gtfs_stop_lat') }}"
+      - name: stop_lon
+        description: "{{ doc('field_gtfs_stop_lon') }}"
+      - name: zone_id
+        description: "{{ doc('field_gtfs_zone_id') }}"
+      - name: stop_url
+        description: "{{ doc('field_gtfs_stop_url') }}"
+      - name: location_type
+        description: "{{ doc('field_gtfs_location_type') }}"
+      - name: parent_station
+        description: "{{ doc('field_gtfs_parent_station') }}"
+      - name: wheelchair_boarding
+        description: "{{ doc('field_gtfs_wheelchair_boarding') }}"
+      - name: stop_timezone
+        description: "{{ doc('field_gtfs_stop_timezone') }}"
+      - name: level_id
+        description: "{{ doc('field_gtfs_level_id') }}"
+      - name: platform_code
+        description: "{{ doc('field_gtfs_platform_code') }}"
+
+  - name: stg_gtfs_trips
+    description: >
+      Staging model for GTFS trips table.
+    columns:
+      - <<: *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: trip_headsign
+        description: "{{ doc('field_gtfs_trip_headsign') }}"
+      - name: direction_id
+        description: "{{ doc('field_gtfs_direction_id') }}"
+      - name: block_id
+        description: "{{ doc('field_gtfs_block_id') }}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+
+  - name: stg_gtfs_feed_info
+    description: Staging model for gtfs feed_info table.
+    columns:
+      - <<: *feed_hash
+      - name: feed_publisher_name
+        description: "{{ doc('field_gtfs_feed_publisher_name') }}"
+      - name: feed_publisher_url
+        description: "{{ doc('field_gtfs_feed_publisher_url') }}"
+      - name: feed_lang
+        description: "{{ doc('field_gtfs_feed_lang') }}"
+      - name: feed_start_date
+        description: "{{ doc('field_gtfs_feed_start_date') }}"
+      - name: feed_end_date
+        description: "{{ doc('field_gtfs_feed_end_date') }}"
+      - name: feed_version
+        description: "{{ doc('field_gtfs_feed_version') }}"
+      - name: feed_contact_email
+        description: "{{ doc('field_gtfs_feed_contact_email') }}"
+      - name: feed_contact_url
+        description: "{{ doc('field_gtfs_feed_contact_url') }}"
+
+  # shapes
+  - name: stg_gtfs_shapes
+    description: Staging model for gtfs shapes table.
+    columns:
+      - <<: *feed_hash
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+      - name: shape_pt_lat
+        description: "{{ doc('field_gtfs_shape_pt_lat') }}"
+      - name: shape_pt_lon
+        description: "{{ doc('field_gtfs_shape_pt_lon') }}"
+      - name: shape_pt_sequence
+        description: "{{ doc('field_gtfs_shape_pt_sequence') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+
+  # timepoints - [AGENCY] specific table
+  - name: stg_gtfs_timepoints
+    description: |
+      Staging model for [AGENCY] gtfs timepoint_times table. Non-standard table published by [AGENCY].
+      A timepoint is a timing point that's associated with one or more stops in different direction that has a
+      actual passing time generated by the scheduling system. Typically an intersection or major landmark.
+    columns:
+      - <<: *feed_hash
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_code
+        description: "{{ doc('field_gtfs_stop_code') }}"
+      - name: stop_name
+        description: "{{ doc('field_gtfs_stop_name') }}"
+      - name: stop_desc
+        description: "{{ doc('field_gtfs_stop_desc') }}"
+      - name: stop_lat
+        description: "{{ doc('field_gtfs_stop_lat') }}"
+      - name: stop_lon
+        description: "{{ doc('field_gtfs_stop_lon') }}"
+      - name: zone_id
+        description: "{{ doc('field_gtfs_zone_id') }}"
+      - name: stop_url
+        description: "{{ doc('field_gtfs_stop_url') }}"
+
+  # timepoint_times - [AGENCY] specific table
+  - name: stg_gtfs_timepoint_times
+    description: |
+      Staging model for [AGENCY] gtfs timepoint_times table. Non-standard table published by [AGENCY].
+      A timepoint is a timing point that's associated with one or more stops in different direction that has a
+      actual passing time generated by the scheduling system. Typically an intersection or major landmark.
+    columns:
+      - <<: *feed_hash
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: arrival_time
+        description: "{{ doc('field_gtfs_arrival_time') }}"
+      - name: departure_time
+        description: "{{ doc('field_gtfs_departure_time') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+      - name: stop_headsign
+        description: "{{ doc('field_gtfs_stop_headsign') }}"
+      - name: pickup_type
+        description: "{{ doc('field_gtfs_pickup_type') }}"
+      - name: drop_off_type
+        description: "{{ doc('field_gtfs_drop_off_type') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+      - name: timepoint
+        description: "{{ doc('field_gtfs_timepoint') }}"
+  # feed_meta - non-gtfs spec table used for tracking variations in feeds
+  - name: stg_gtfs_feed_meta
+    description: |
+      Staging model for internal table feed_meta. Logs when a specified feed_hash was retrieved, including the source.
+    columns:
+      - <<: *feed_hash
+      - name: _source
+        description: "{{ doc('field_gtfs_source') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"

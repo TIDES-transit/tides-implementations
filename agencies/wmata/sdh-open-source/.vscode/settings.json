@@ -1,0 +1,92 @@
+{
+  "editor.formatOnSave": true,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[python]": {
+    "editor.defaultFormatter": "charliermarsh.ruff"
+  },
+
+  "autoDocstring.docstringFormat": "numpy", // Configure autodocstring to use correct docstring input
+
+  "python.defaultInterpreterPath": ".venv/bin/python.exe",
+  "python.terminal.activeEnvironment": true,
+  "python.linting.enabled": true,
+  "python.formatting.provider": "none",
+  "python.testing.unittestEnabled": false,
+  "python.testing.pytestEnabled": true,
+  "python.testing.pytestArgs": ["-m", "unit or integration"],
+  "[jinja-sql]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    // required by https://github.com/sqlfluff/vscode-sqlfluff?tab=readme-ov-file#dbt-configuration
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false
+  },
+  "[sql]": {
+    "editor.defaultFormatter": "dorzey.vscode-sqlfluff",
+    // required by https://github.com/sqlfluff/vscode-sqlfluff?tab=readme-ov-file#dbt-configuration
+    "editor.formatOnSave": false,
+    "editor.formatOnType": false
+  },
+  "sqlfluff.config": "./pyproject.toml",
+  "sqlfluff.dialect": "duckdb",
+  // required by https://github.com/sqlfluff/vscode-sqlfluff?tab=readme-ov-file#dbt-configuration
+  "sqlfluff.linter.run": "onSave",
+  "sqlfluff.format.enabled": true,
+  // required by https://github.com/sqlfluff/vscode-sqlfluff?tab=readme-ov-file#dbt-configuration
+  "sqlfluff.experimental.format.executeInTerminal": true,
+  // NOTE: in user settings.json, add either of the following depending on your system. There are other ways
+  // of resolving pathing but this is likely the friendliest for most.
+  // macOS/Linux
+  // "sqlfluff.executablePath": "${workspaceFolder}/.venv/bin/sqlfluff"
+  // Windows
+  // "sqlfluff.executablePath": "${workspaceFolder}\\.venv\\Scripts\\sqlfluff.exe"
+  // DBT power user extension items
+  // below addresses issues where dbt power user extension (which typically runs commands in a separate python
+  // process) could lock warehouse.duckdb and be difficult to shut off
+  "dbt.dbtIntegration": "core",
+  // this prevents dbt power user extension from attempting to install
+  // its own version of dbt_utils, which can conflict with our version.
+  "dbt.installDepsOnProjectInitialization": false,
+  // not essential, but it tends to make for noisy unstaged file changes if we don't just set this
+  "dbt.enableNewLineagePanel": true,
+  // some GH issues suggest that doc collaboration can leave locks on with duckdb
+  // see vscode-dbt-power-user GH issue #1634
+  "dbt.enableCollaboration": false,
+  // similar reasons as above
+  "dbt.enableNotebooks": false,
+  "[yaml]": {
+    "editor.defaultFormatter": "redhat.vscode-yaml",
+    "editor.tabSize": 2
+  },
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[terraform]": {
+    "editor.defaultFormatter": "hashicorp.terraform"
+  },
+  "[dockerfile]": {
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
+  "[markdown]": {
+    "editor.wordWrap": "on",
+    "editor.quickSuggestions": {
+      "other": true,
+      "comments": true,
+      "strings": true
+    },
+    "editor.defaultFormatter": "DavidAnson.vscode-markdownlint",
+    "editor.formatOnSave": true
+  },
+  "markdownlint.config": {
+    "default": true,
+    "MD013": false, // Disable line length checking
+    "MD033": false, // Allow inline HTML
+    "MD041": false // First line should be a top level heading
+  },
+  "files.associations": {
+    "*.sql": "jinja-sql",
+    "*.yaml": "yaml",
+    "*.yml": "yaml",
+    "*.tf": "terraform",
+    "Dockerfile*": "dockerfile"
+  }
+}

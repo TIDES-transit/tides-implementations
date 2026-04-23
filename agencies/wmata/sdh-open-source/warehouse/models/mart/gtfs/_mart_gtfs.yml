@@ -1,0 +1,781 @@
+version: 2
+
+models:
+  - name: dim_calendar_dates
+    description: >
+      GTFS calendar dates data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#calendar_datestxt.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, `service_id`, `date`, and `exception_type`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - &feed_hash
+        name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: date
+        description: "{{ doc('field_gtfs_date') }}"
+      - name: exception_type
+        description: "{{ doc('field_gtfs_exception_type') }}"
+  - name: dim_calendar
+    description: >
+      GTFS calendar data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#calendartxt.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, and `service_id`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: monday
+        description: "{{ doc('field_gtfs_monday') }}"
+      - name: tuesday
+        description: "{{ doc('field_gtfs_tuesday') }}"
+      - name: wednesday
+        description: "{{ doc('field_gtfs_wednesday') }}"
+      - name: thursday
+        description: "{{ doc('field_gtfs_thursday') }}"
+      - name: friday
+        description: "{{ doc('field_gtfs_friday') }}"
+      - name: saturday
+        description: "{{ doc('field_gtfs_saturday') }}"
+      - name: sunday
+        description: "{{ doc('field_gtfs_sunday') }}"
+      - name: start_date
+        description: "{{ doc('field_gtfs_start_date') }}"
+      - name: end_date
+        description: "{{ doc('field_gtfs_end_date') }}"
+  - name: dim_feed_info
+    description: >
+      GTFS feed_info data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#feed_infotxt.
+    columns:
+      - <<: *feed_hash
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - name: feed_publisher_name
+        description: "{{ doc('field_gtfs_feed_publisher_name') }}"
+      - name: feed_publisher_url
+        description: "{{ doc('field_gtfs_feed_publisher_url') }}"
+      - name: feed_lang
+        description: "{{ doc('field_gtfs_feed_lang') }}"
+      - name: feed_start_date
+        description: "{{ doc('field_gtfs_feed_start_date') }}"
+      - name: feed_end_date
+        description: "{{ doc('field_gtfs_feed_end_date') }}"
+      - name: feed_version
+        description: "{{ doc('field_gtfs_feed_version') }}"
+      - name: feed_contact_email
+        description: "{{ doc('field_gtfs_feed_contact_email') }}"
+      - name: feed_contact_url
+        description: "{{ doc('field_gtfs_feed_contact_url') }}"
+  - name: dim_routes
+    description: >
+      GTFS routes data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#routestxt.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, `route_id`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: agency_id
+        description: "{{ doc('field_gtfs_agency_id_routes') }}"
+      - name: route_short_name
+        description: "{{ doc('field_gtfs_route_short_name') }}"
+      - name: route_long_name
+        description: "{{ doc('field_gtfs_route_long_name') }}"
+      - name: route_desc
+        description: "{{ doc('field_gtfs_route_desc') }}"
+      - name: route_type
+        description: "{{ doc('field_gtfs_route_type') }}"
+      - name: route_url
+        description: "{{ doc('field_gtfs_route_url') }}"
+      - name: route_color
+        description: "{{ doc('field_gtfs_route_color') }}"
+      - name: route_text_color
+        description: "{{ doc('field_gtfs_route_text_color') }}"
+  - name: dim_stops
+    description: >
+      GTFS stops data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#stopstxt.
+    config:
+      event_time: _date_retrieved
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, and `stop_id`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_code
+        description: "{{ doc('field_gtfs_stop_code') }}"
+      - name: stop_name
+        description: "{{ doc('field_gtfs_stop_name') }}"
+      - name: stop_desc
+        description: "{{ doc('field_gtfs_stop_desc') }}"
+      - name: stop_lat
+        description: "{{ doc('field_gtfs_stop_lat') }}"
+      - name: stop_lon
+        description: "{{ doc('field_gtfs_stop_lon') }}"
+      - name: zone_id
+        description: "{{ doc('field_gtfs_zone_id') }}"
+      - name: stop_url
+        description: "{{ doc('field_gtfs_stop_url') }}"
+      - name: location_type
+        description: "{{ doc('field_gtfs_location_type') }}"
+      - name: parent_station
+        description: "{{ doc('field_gtfs_parent_station') }}"
+      - name: wheelchair_boarding
+        description: "{{ doc('field_gtfs_wheelchair_boarding') }}"
+      - name: stop_timezone
+        description: "{{ doc('field_gtfs_stop_timezone') }}"
+      - name: level_id
+        description: "{{ doc('field_gtfs_level_id') }}"
+      - name: platform_code
+        description: "{{ doc('field_gtfs_platform_code') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+  - name: dim_stop_times
+    description: >
+      GTFS stop_times data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#stop_timestxt.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, `trip_id`, and `stop_sequence`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: arrival_time
+        description: "{{ doc('field_gtfs_arrival_time') }}"
+      - name: departure_time
+        description: "{{ doc('field_gtfs_departure_time') }}"
+      - name: arrival_time_secs
+        description: "{{ doc('field_gtfs_arrival_time_secs') }}"
+      - name: departure_time_secs
+        description: "{{ doc('field_gtfs_departure_time_secs') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+      - name: stop_headsign
+        description: "{{ doc('field_gtfs_stop_headsign') }}"
+      - name: pickup_type
+        description: "{{ doc('field_gtfs_pickup_type') }}"
+      - name: drop_off_type
+        description: "{{ doc('field_gtfs_drop_off_type') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+      - name: timepoint
+        description: "{{ doc('field_gtfs_timepoint') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+  - name: dim_trips
+    description: >
+      GTFS trips data, along with its versioned parent feed information.
+      For official GTFS documentation, see: https://gtfs.org/documentation/schedule/reference/#tripstxt.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, and `trip_id`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: trip_headsign
+        description: "{{ doc('field_gtfs_trip_headsign') }}"
+      - name: direction_id
+        description: "{{ doc('field_gtfs_direction_id') }}"
+      - name: block_id
+        description: "{{ doc('field_gtfs_block_id') }}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+  - name: dim_schedule_feeds
+    description: >
+      Metadata about GTFS feeds and their validity periods.
+    config:
+      event_time: _date_retrieved
+    data_tests:
+      - dbt_utils.mutually_exclusive_ranges:
+          arguments:
+            lower_bound_column: _valid_from
+            upper_bound_column: _valid_to
+            partition_by: _feed_type
+            gaps: allowed
+          config:
+            severity: warn
+    columns:
+      - <<: *feed_hash
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+          - unique:
+              config:
+                severity: warn
+      - name: _source
+        description: "{{ doc('field_gtfs_source') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: _feed_type
+        description: "{{ doc('field_gtfs_feed_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+          - accepted_values:
+              arguments:
+                values: ["Combined", "Rail", "Bus"]
+              config:
+                severity: warn
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: feed_version
+        description: "{{ doc('field_gtfs_feed_version') }}"
+      - name: feed_start_date
+        description: "{{ doc('field_gtfs_feed_start_date') }}"
+      - name: feed_end_date
+        description: "{{ doc('field_gtfs_feed_end_date') }}"
+      - name: _valid_from
+        description: "{{ doc('field_gtfs_valid_from') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: _valid_to
+        description: "{{ doc('field_gtfs_valid_to') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+  - name: dim_shapes
+    description: Staging model for gtfs shapes table.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, `shape_id`, and `shape_pt_sequence`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+      - name: shape_pt_lat
+        description: "{{ doc('field_gtfs_shape_pt_lat') }}"
+      - name: shape_pt_lon
+        description: "{{ doc('field_gtfs_shape_pt_lon') }}"
+      - name: shape_pt_sequence
+        description: "{{ doc('field_gtfs_shape_pt_sequence') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+
+  - name: dim_gtfs_timepoints
+    description: |
+      [AGENCY] GTFS timepoint_times table. Non-standard table published by [AGENCY].
+      A timepoint is a timing point that's associated with one or more stops in different direction that has a
+      actual passing time generated by the scheduling system. Typically an intersection or major landmark.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, and `stop_id`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_code
+        description: "{{ doc('field_gtfs_stop_code') }}"
+      - name: stop_name
+        description: "{{ doc('field_gtfs_stop_name') }}"
+      - name: stop_desc
+        description: "{{ doc('field_gtfs_stop_desc') }}"
+      - name: stop_lat
+        description: "{{ doc('field_gtfs_stop_lat') }}"
+      - name: stop_lon
+        description: "{{ doc('field_gtfs_stop_lon') }}"
+      - name: zone_id
+        description: "{{ doc('field_gtfs_zone_id') }}"
+      - name: stop_url
+        description: "{{ doc('field_gtfs_stop_url') }}"
+
+  - name: dim_gtfs_timepoint_times
+    description: |
+      [AGENCY] GTFS timepoint_times table. Non-standard table published by [AGENCY].
+      A timepoint is a timing point that's associated with one or more stops in different direction that has a
+      actual passing time generated by the scheduling system. Typically an intersection or major landmark.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `_feed_hash`, `trip_id`, and `stop_sequence`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: arrival_time
+        description: "{{ doc('field_gtfs_arrival_time') }}"
+      - name: departure_time
+        description: "{{ doc('field_gtfs_departure_time') }}"
+      - name: arrival_time_secs
+        description: "{{ doc('field_gtfs_arrival_time_secs') }}"
+      - name: departure_time_secs
+        description: "{{ doc('field_gtfs_departure_time_secs') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+      - name: stop_headsign
+        description: "{{ doc('field_gtfs_stop_headsign') }}"
+      - name: pickup_type
+        description: "{{ doc('field_gtfs_pickup_type') }}"
+      - name: drop_off_type
+        description: "{{ doc('field_gtfs_drop_off_type') }}"
+      - name: shape_dist_traveled
+        description: "{{ doc('field_gtfs_shape_dist_traveled') }}"
+      - name: timepoint
+        description: "{{ doc('field_gtfs_timepoint') }}"
+
+  - name: dim_dates
+    description: "Dimension table containing all dates from 2018-2030 with calendar attributes"
+    columns:
+      - name: service_date
+        description: "{{ doc('field_dim_dates_service_date') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: year_of_date
+        description: "{{ doc('field_dim_dates_year_of_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: month_of_year
+        description: "{{ doc('field_dim_dates_month_of_year') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 12
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: day_of_month
+        description: "{{ doc('field_dim_dates_day_of_month') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 31
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: day_of_year
+        description: "{{ doc('field_dim_dates_day_of_year') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 1
+                max_value: 366
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: day_of_week
+        description: "{{ doc('field_dim_dates_day_of_week') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "Monday",
+                    "Tuesday",
+                    "Wednesday",
+                    "Thursday",
+                    "Friday",
+                    "Saturday",
+                    "Sunday",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: weekday_weekend
+        description: "{{ doc('field_dim_dates_weekday_weekend') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["Weekday", "Weekend"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: fct_daily_schedule_feed_modes
+    description: >
+      Fact table identifying which GTFS feed is applicable for each service date by transit mode.
+      Combined feeds are expanded into separate Bus and Rail rows, and each mode gets its own
+      effective validity window based on when the feed actually has active service for that mode.
+      A feed's validity for a mode extends until the next feed can serve that mode, ensuring
+      continuity when a newer feed's service_ids for one mode start later than the feed's
+      retrieval date. Among eligible feeds, the most recently retrieved is selected.
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, and `feed_mode`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_daily_schedule_feeds_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: feed_mode
+        description: "{{ doc('field_gtfs_feed_mode') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["Bus", "Rail"]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: feed_type
+        description: "{{ doc('field_gtfs_feed_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["Combined", "Rail", "Bus"]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - <<: *feed_hash
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: fct_scheduled_trips
+    description: >
+      One record for each trip operated on a service date. Only service dates up to the current
+      calendar date (i.e., today's date) are shown.
+    columns:
+      - name: _key
+        description: "{{ doc('field_key_feed_service_date_trip_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_dim_dates_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: direction_id
+        description: "{{ doc('field_gtfs_direction_id') }}"
+      - name: block_id
+        description: "{{ doc('field_gtfs_block_id') }}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_mode
+        description: "{{ doc('field_gtfs_trip_mode') }}"
+      - name: route_type
+        description: "{{ doc('field_gtfs_route_type') }}"
+      - name: route_short_name
+        description: "{{ doc('field_gtfs_route_short_name') }}"
+      - name: route_long_name
+        description: "{{ doc('field_gtfs_route_long_name') }}"
+      - name: num_distinct_stops_serviced
+        description: "{{ doc('field_gtfs_num_distinct_stops_serviced') }}"
+      - name: num_scheduled_stops
+        description: "{{ doc('field_gtfs_num_scheduled_stops') }}"
+      - name: first_scheduled_stop_id
+        description: "{{ doc('field_gtfs_first_scheduled_stop_id') }}"
+      - name: last_scheduled_stop_id
+        description: "{{ doc('field_gtfs_last_scheduled_stop_id') }}"
+      - name: first_scheduled_arrival_time
+        description: "{{ doc('field_gtfs_first_scheduled_arrival_time') }}"
+      - name: first_scheduled_departure_time
+        description: "{{ doc('field_gtfs_first_scheduled_departure_time') }}"
+      - name: last_scheduled_arrival_time
+        description: "{{ doc('field_gtfs_last_scheduled_arrival_time') }}"
+      - name: last_scheduled_departure_time
+        description: "{{ doc('field_gtfs_last_scheduled_departure_time') }}"
+      - name: last_scheduled_departure_time
+        description: "{{ doc('field_gtfs_last_scheduled_departure_time') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+  - name: fct_scheduled_stop_times
+    description: >
+      One record for each scheduled stop visit on a service date. Only service dates up to the current
+      calendar date (i.e., today's date) are shown.
+    columns:
+      - name: _key
+        description: "{{ doc('field_key_feed_service_date_trip_id_stop_seq_stop') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_dim_dates_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: direction_id
+        description: "{{ doc('field_gtfs_direction_id') }}"
+      - name: route_short_name
+        description: "{{ doc('field_gtfs_route_short_name') }}"
+      - name: route_long_name
+        description: "{{ doc('field_gtfs_route_long_name') }}"
+      - name: route_type
+        description: "{{ doc('field_gtfs_route_type') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_code
+        description: "{{ doc('field_gtfs_stop_code') }}"
+      - name: stop_name
+        description: "{{ doc('field_gtfs_stop_name') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_lat
+        description: "{{ doc('field_gtfs_stop_lat') }}"
+      - name: stop_lon
+        description: "{{ doc('field_gtfs_stop_lon') }}"
+      - name: arrival_time
+        description: "{{ doc('field_gtfs_arrival_time') }}"
+      - name: arrival_time_secs
+        description: "{{ doc('field_gtfs_arrival_time_secs') }}"
+      - name: departure_time
+        description: "{{ doc('field_gtfs_departure_time') }}"
+      - name: departure_time_secs
+        description: "{{ doc('field_gtfs_departure_time_secs') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+  - name: dim_patterns
+    description: >
+      Unique patterns derived from GTFS data with temporal validity. A pattern is a set of stop_ids in a sequence that will be visited on a trip.
+      At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+      This model includes one record for each unique pattern in a given GTFS feed, along with the validity period of the source feed.
+    columns:
+      - *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id')}}"
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id')}}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id')}}"
+
+  - name: dim_pattern_stops
+    description: >
+      Pattern stop sequences from GTFS data with temporal validity. A pattern is a set of stop_ids in a sequence that will be visited on a trip.
+      At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+      This model includes one record for each stop in a pattern in a given GTFS feed, along with the validity period of the source feed.
+      Patterns may have the same stop represented multiple times within a sequence, such as for a loop.
+    columns:
+      - *feed_hash
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+
+  - name: dim_route_pattern_trips
+    description: >
+      Trip-to-pattern mapping from GTFS data. This model includes one record for each trip, its GTFS route_id,
+      and the derived pattern_id in a given GTFS feed. A pattern is a set of stop_ids in a sequence that will
+      be visited on a trip. At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+    columns:
+      - name: _key
+        description: "{{ doc('field_gtfs_route_pattern_trip') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - *feed_hash
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id') }}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"

@@ -1,0 +1,9 @@
+/* addresses unnecessary scrollbar
+see:
+https://github.com/executablebooks/sphinx-book-theme/issues/732#issuecomment-1752572223
+*/
+.bd-sidebar-primary div#rtd-footer-container {
+  bottom: -1rem;
+  margin: -1rem;
+  position: fixed;
+}

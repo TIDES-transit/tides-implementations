@@ -1,0 +1,9 @@
+target/
+dbt_packages/
+logs/
+warehouse.duckdb
+profiles.yml
+.user.yml
+scratch/*
+!scratch/.gitkeep
+dbt_internal_packages/

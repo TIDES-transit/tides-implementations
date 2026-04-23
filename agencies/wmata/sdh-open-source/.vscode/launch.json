@@ -1,0 +1,75 @@
+{
+  "version": "0.1.0",
+  "configurations": [
+    {
+      "name": "Debug Dagster",
+      "type": "debugpy",
+      "request": "launch",
+      "env": {
+        "PATH": "${workspaceFolder}/.venv/bin",
+        "PYDEVD_DISABLE_FILE_VALIDATION": "1",
+        "DAGSTER_HOME": "${workspaceFolder}/.dagster_home"
+      },
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "dagster",
+      "cwd": "${workspaceFolder}",
+      "args": ["dev"],
+      "subProcess": true,
+      "justMyCode": false
+    },
+    {
+      "name": "Debug Dagster job: *",
+      "type": "debugpy",
+      "request": "launch",
+      "env": {
+        "PATH": "${workspaceFolder}/.venv/bin",
+        "PYDEVD_DISABLE_FILE_VALIDATION": "1",
+        "DAGSTER_HOME": "${workspaceFolder}/.dagster_home"
+      },
+      "python": "${workspaceFolder}/.venv/bin/python",
+      "module": "dagster",
+      "cwd": "${workspaceFolder}",
+      "args": [
+        "job",
+        "execute",
+        "-m",
+        "pipelines.definitions",
+        "-j",
+        "${input:job_name}"
+      ],
+      "subProcess": true,
+      "justMyCode": false
+    },
+    {
+      "name": "debug bus info - gtfs visualization",
+      "type": "debugpy",
+      "request": "launch",
+      "program": "./analyses/153-businfo-gtfs/153-eda.py",
+      "python": "uv",
+      "cwd": "${workspaceFolder}",
+      "pythonArgs": [
+        "run",
+        "--with-requirements",
+        "./analyses/153-businfo-gtfs/153-eda.py",
+        "python"
+      ],
+      "args": [
+        "-t",
+        "4933060",
+        "-f",
+        "b8ca51936eceae9b6b757de61ee9e47c",
+        "-d",
+        "2025-03-07",
+        "-s",
+        "stop_sequence"
+      ]
+    }
+  ],
+  "inputs": [
+    {
+      "id": "job_name",
+      "type": "promptString",
+      "description": "Name of Dagster job"
+    }
+  ]
+}

@@ -1,0 +1,105 @@
+# macOS system files
+.DS_Store
+
+# Local development
+logs/
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+.env*
+.venv
+env/
+venv/
+ENV/
+
+# IDE
+.idea/
+*.swp
+*.swo
+
+# DBT
+target/
+# used in a task for shortening `dbt run` and `dbt test` times
+target_baseline/
+dbt_packages/
+logs/
+artifacts/
+package-lock.concurrent-update-lock
+
+# DuckDB
+*.duckdb
+*.duckdb.wal
+*.tmp # some stalled out duckdb queries generate warehouse.duckdb.tmp folder
+
+# Tofu
+.tfvars
+
+# Data files
+*.csv
+!warehouse/seeds/**/*.csv  # Exception for dbt seeds
+!warehouse/seeds/rail/rail_mezzanine_to_station.csv
+*.zip
+*.parquet
+*.xlsx
+*.xls
+
+# Personal work and analysis
+scratch/*
+!scratch/.gitkeep
+
+# Sphinx documentation - ignore all generated content
+docs/sphinx/build/
+docs/sphinx/source/
+
+# Always track templates and build tools
+!docs/sphinx/templates/
+!docs/sphinx/build.py
+!docs/sphinx/Makefile
+!docs/sphinx/make.bat
+!docs/sphinx/README.md
+
+# testing and coverage
+.coverage
+.coverage.*      # parallel-mode shards
+htmlcov/         # HTML reports
+*.cover          # Nose / legacy
+*.lcov           # LCOV report
+coverage.xml
+
+# dagster
+.dagster_home/*
+!.dagster_home/
+!.dagster_home/dagster.yaml
+
+# random temp home directories(these can be avoided from
+# being in created in repo with DAGSTER_HOME env var)
+.tmp_dagster_home_*
+
+# draw.io
+docs/diagrams/**/*.bkp
+
+# ignore duckdb cache
+warehouse/warehouse.duckdb.tmp/
+warehouse/warehouse.duckdb.tmp/*

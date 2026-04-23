@@ -1,0 +1,240 @@
+version: 2
+
+models:
+  - name: metric_hourly_station_ridership
+    description: "Hourly rail ridership summary by station, reshaping fct_tides_station_activities into the metrics layer with a consistent interface."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `stop_id`, `time_period_start`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_station_activities_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_id
+        description: "{{ doc('field_station_activities_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_start
+        description: "{{ doc('field_station_activities_time_period_start') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_end
+        description: "{{ doc('field_station_activities_time_period_end') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: time_period_category
+        description: "{{ doc('field_station_activities_time_period_category') }}"
+      - name: total_entries
+        description: "{{ doc('field_station_activities_total_entries') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_exits
+        description: "{{ doc('field_station_activities_total_exits') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: entry_transactions
+        description: "{{ doc('field_station_activities_entry_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: exit_transactions
+        description: "{{ doc('field_station_activities_exit_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: number_of_transactions
+        description: "{{ doc('field_station_activities_number_of_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_activity
+        description: "{{ doc('field_station_activities_total_activity') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+  - name: metric_daily_station_ridership
+    description: "Daily rail ridership summary by station, aggregating total entries, exits, and transactions for each service date."
+    data_tests:
+      - dbt_utils.expression_is_true:
+          arguments:
+            expression: "total_activity = total_entries + total_exits"
+          config:
+            severity: warn
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `stop_id`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_station_activities_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_id
+        description: "{{ doc('field_station_activities_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_entries
+        description: "{{ doc('field_station_activities_total_entries') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_exits
+        description: "{{ doc('field_station_activities_total_exits') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: entry_transactions
+        description: "{{ doc('field_station_activities_entry_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: exit_transactions
+        description: "{{ doc('field_station_activities_exit_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: number_of_transactions
+        description: "{{ doc('field_station_activities_number_of_transactions') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: total_activity
+        description: "{{ doc('field_station_activities_total_activity') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
