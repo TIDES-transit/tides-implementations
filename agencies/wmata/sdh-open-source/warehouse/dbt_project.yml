@@ -1,0 +1,160 @@
+name: "warehouse"
+version: "1.0.0"
+
+# This setting configures which "profile" dbt uses for this project.
+profile: "warehouse"
+
+# These configurations specify where dbt should look for different types of files.
+# The `model-paths` config, for example, states that models in this project can be
+# found in the "models/" directory. You probably won't need to change these!
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+docs-paths: ["docs"]
+
+clean-targets: # directories to be removed by `dbt clean`
+  - "target"
+  - "dbt_packages"
+
+vars:
+  # Set to true when AVL/vendor_1 realtime source data is available in Trino.
+  # Toggle off: dbt run --vars '{"enable_realtime": false}'
+  enable_realtime: true
+  # Earliest date for microbatch incremental models to process.
+  incremental_begin_date: '2026-01-01'
+  # Number of days to look back for late-arriving data in microbatch models.
+  microbatch_lookback_days: 3
+
+flags:
+  require_certificate_validation: true
+
+# Configuring models
+# Full documentation: https://docs.getdbt.com/docs/configuring-models
+models:
+  warehouse:
+    schema: bronze
+    staging:
+      gtfs:
+        schema: bronze_gtfs
+        # This allows setting how the models are grouped together within dagster
+        # Set within dbt_project.yml to easily apply to models rather than per-model
+        +meta:
+          dagster:
+            group: bronze_gtfs # Use {medallion}_{data} format
+      bus_info:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_bus
+        +meta:
+          dagster:
+            group: bronze_bus_info
+      fares:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_fares
+        +meta:
+          dagster:
+            group: bronze_fares
+      vendor_2:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_vendor_2
+        +meta:
+          dagster:
+            group: bronze_vendor_2
+    intermediate:
+      gtfs:
+        schema: bronze_gtfs
+        +meta:
+          dagster:
+            group: bronze_gtfs
+      bus_ridership:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_bus
+        +meta:
+          dagster:
+            group: bronze_bus
+      bus_info:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_bus
+        +meta:
+          dagster:
+            group: bronze_bus
+      fares:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_fares
+        +meta:
+          dagster:
+            group: bronze_fares
+      faregate:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_faregate
+        +meta:
+          dagster:
+            group: bronze_faregate
+      rail:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: bronze_rail
+        +meta:
+          dagster:
+            group: bronze_rail
+    mart:
+      gtfs:
+        schema: silver_gtfs
+        +meta:
+          dagster:
+            group: silver_gtfs
+      bus:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: silver_bus
+        +meta:
+          dagster:
+            group: silver_bus
+      data_quality:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: silver_quality
+        +meta:
+          dagster:
+            group: silver_quality
+      fares:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: silver_fares
+        +meta:
+          dagster:
+            group: silver_fares
+      faregate:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: silver_faregate
+        +meta:
+          dagster:
+            group: silver_faregate
+      rail:
+        enabled: "{{ target.name != 'consultant' }}"
+        schema: silver_rail
+        +meta:
+          dagster:
+            group: silver_rail
+    metrics:
+      enabled: "{{ target.name != 'consultant' }}"
+      ridership:
+        schema: gold_ridership
+        +meta:
+          dagster:
+            group: gold_ridership
+
+# Configuring sources
+sources:
+  warehouse:
+    staging:
+      bus_info:
+        enabled: "{{ target.name != 'consultant' }}"
+
+# Configure seeds
+seeds:
+  +meta:
+    dagster:
+      group: seeds
+
+dispatch:
+  - macro_namespace: dbt_utils
+    search_order: ["trino_utils", "dbt_utils"]

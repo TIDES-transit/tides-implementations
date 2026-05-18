@@ -1,0 +1,59 @@
+arm_subscription_id  = "<subscription-id>"
+environment_name     = "<environment-name>"
+resource_group_name  = "datahub"
+
+datahub_cae_dns_suffix                      = "<datahub-dns-suffix>"
+datahub_users_group_id                      = "<datahub-users-group-id>"
+datahub_key_vault_id                        = "<datahub-key-vault-id>"
+datahub_container_registry_id               = "<datahub-container-registry-id>"
+dagster_workload_identity_principal_id      = "<dagster-workload-identity-principal-id>"
+openmetadata_workload_identity_principal_id = "<openmetadata-workload-identity-principal-id>"
+
+# App Registrations
+lakekeeper_app_registration_object_id = ""
+trino_app_registration_object_id = ""
+dagster_app_registration_object_id = ""
+openmetadata_app_registration_object_id = ""
+
+# App Client IDs (for identifier URIs)
+lakekeeper_app_registration_client_id = ""
+trino_app_registration_client_id = ""
+
+# Permission Scopes for App Registrations
+lakekeeper_oauth2_permission_scope_id = ""
+
+# Service Principals
+lakekeeper_app_service_principal_object_id = ""
+trino_app_service_principal_object_id = ""
+dagster_app_service_principal_object_id = ""
+openmetadata_app_service_principal_object_id = ""
+
+# Workload Identity Principal IDs
+trino_workload_identity_principal_id    = ""
+dagster_workload_identity_principal_id      = ""
+openmetadata_workload_identity_principal_id = ""
+
+# Role Assignment IDs
+#
+# You can find the role assignment IDs by going to the resource in the Azure Portal,
+# navigating to "Access Control (IAM)" > "Role assignments", and clicking on the role
+# assignment. The ID will be in the URL as the last segment. Alternatively, you can use the
+# Azure CLI to list role assignments and find the relevant one.
+# Example CLI command:
+# az role assignment list --assignee <principal-id> --query "[].id" -o tsv
+#
+trino_workload_identity_storage_delegator_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Storage/storageAccounts/<storage-account-name>/providers/Microsoft.Authorization/roleAssignments/<role-assignment-id>"
+trino_workload_identity_storage_contributor_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Storage/storageAccounts/<storage-account-name>/providers/Microsoft.Authorization/roleAssignments/<role-assignment-id>"
+dagster_workload_identity_key_vault_user_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.KeyVault/vaults/<key-vault-name>/providers/Microsoft.Authorization/roleAssignments/<role-assignment-id>"
+dagster_workload_identity_acr_pull_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.Authorization/roleAssignments/<role-assignment-id>"
+openmetadata_workload_identity_key_vault_user_id = "/subscriptions/<subscription-id>/resourceGroups/<resource-group>/providers/Microsoft.KeyVault/vaults/<key-vault-name>/providers/Microsoft.Authorization/roleAssignments/<role-assignment-id>"
+
+# Group Role Assignment IDs
+#
+# You can find the group role assignment IDs by going to the resource in the Azure Portal,
+# navigating to the group, and checking "Manage" > "Applications". Click on the application to see
+# the role assignment details.
+datahub_users_group_lakekeeper_assignment_id = ""
+datahub_users_group_trino_assignment_id = ""
+datahub_users_group_dagster_assignment_id = ""
+datahub_users_group_openmetadata_assignment_id = ""

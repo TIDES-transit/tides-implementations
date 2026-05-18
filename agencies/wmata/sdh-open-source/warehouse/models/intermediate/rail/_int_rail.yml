@@ -1,0 +1,149 @@
+version: 2
+
+models:
+  - name: int_gtfs_rail_stops
+    description: >
+      Extracts fare-data-compatible rail station codes from GTFS stop data.
+      Uses platform stop_ids (PF_{code}_{suffix}) and parent station IDs (STN_{code})
+      to derive the bare station codes (e.g., A01) used in fare transaction data.
+      Per-feed granularity — the rail station set is stable within a feed.
+    columns:
+      - name: _key
+        description: "Surrogate key from (_feed_hash, stop_id)."
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+      - name: stop_id
+        description: >
+          Bare rail station code (e.g., A01) compatible with fare transaction stop_ids.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+  - name: int_disaggregated_station_activities
+    description: >
+      Intermediate model that combines faregate passenger events and fare transactions
+      to create a comprehensive dataset of rail station activity while avoiding double-counting.
+
+      Key Design Principles:
+      - Physical entries/exits (is_entry, is_exit) come ONLY from faregate sensors (faregate_data_ORGN)
+      - Transaction flags (is_entry_transaction, is_exit_transaction) come ONLY from payment systems (FARE, vendor_2)
+      - This separation ensures each passenger movement is counted once while preserving payment attribution
+
+      This model serves as the disaggregated basis for the station_activities mart model.
+    config:
+      materialized: view
+      event_time: service_date
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `stop_id`, `event_timestamp`, `event_type`, and `source_system`.
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_station_activities_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: event_timestamp
+        description: "{{ doc('field_station_activities_event_timestamp') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: stop_id
+        description: "{{ doc('field_station_activities_stop_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: event_type
+        description: "{{ doc('field_station_activities_event_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "Passenger entry",
+                    "Passenger exit",
+                    "Enter",
+                    "Exit",
+                    "Transfer entrance",
+                    "Transfer exit",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: rider_category
+        description: "{{ doc('field_station_activities_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_station_activities_fare_product') }}"
+      - name: token_id
+        description: "{{ doc('field_station_activities_token_id') }}"
+      - name: hour_of_day
+        description: "{{ doc('field_station_activities_hour_of_day') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_entry
+        description: "{{ doc('field_station_activities_is_entry') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_exit
+        description: "{{ doc('field_station_activities_is_exit') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_entry_transaction
+        description: "{{ doc('field_station_activities_is_entry_transaction') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_exit_transaction
+        description: "{{ doc('field_station_activities_is_exit_transaction') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: source_system
+        description: "{{ doc('field_station_activities_source_system') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"

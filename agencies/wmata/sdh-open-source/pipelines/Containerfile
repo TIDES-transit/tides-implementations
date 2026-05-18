@@ -1,0 +1,99 @@
+# Use a Python image with uv pre-installed
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS base
+
+ENV UV_PROJECT_ENVIRONMENT=/usr/local
+
+# Enable bytecode compilation
+ENV UV_COMPILE_BYTECODE=1
+
+# Copy from the cache instead of linking since it's a mounted volume
+ENV UV_LINK_MODE=copy
+
+
+## ORACLE CLIENT DOWNLOAD
+FROM base AS oracle-download
+WORKDIR /opt
+
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt update && apt-get --no-install-recommends install -y wget unzip
+
+RUN wget --quiet https://download.oracle.com/otn_software/linux/instantclient/2380000/instantclient-basic-linux.x64-23.8.0.25.04.zip
+RUN unzip instantclient-basic-linux.x64-23.8.0.25.04.zip
+
+
+## DBT PROJECT BUILD
+FROM base AS dbt-build
+
+# Install the dbt project's dependencies using the lockfile and settings
+WORKDIR /opt/dagster
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --only-group dbt
+
+# Then, add the rest of the project source code and install it
+# Installing separately from its dependencies allows optimal layer caching
+WORKDIR /opt/dagster/warehouse
+COPY warehouse .
+
+# Set up dbt profiles
+RUN cp profiles.deploy.yml profiles.yml
+
+# Install any dbt dependencies
+RUN uv run dbt deps
+
+# Build manifest.json and catalog.json
+ARG TRINO_HOST
+ARG TRINO_PORT
+ARG TRINO_CATALOG
+ARG TRINO_SCHEMA
+ARG TRINO_JWT_TOKEN
+
+RUN TRINO_HOST="$TRINO_HOST" \
+    TRINO_PORT="$TRINO_PORT" \
+    TRINO_CATALOG="$TRINO_CATALOG" \
+    TRINO_SCHEMA="$TRINO_SCHEMA" \
+    TRINO_JWT_TOKEN="$TRINO_JWT_TOKEN" \
+    uv run dbt docs generate || uv run dbt parse
+
+
+## DAGSTER DAEMON/WEBSERVER CONTAINER
+FROM base AS dagster-daemons
+
+# Install the Dagster dependencies using the lockfile and settings
+WORKDIR /opt/dagster
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --only-group dagster-deploy-daemons
+
+# Setu p DAGSTER_HOME
+ENV DAGSTER_HOME=/opt/dagster/home/
+RUN mkdir -p $DAGSTER_HOME
+WORKDIR $DAGSTER_HOME
+
+
+## DAGSTER PIPELINES (USER CODE) CONTAINER
+FROM base AS dagster-pipelines
+
+# Install Oracle Instant Client and git (required by gitpython)
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+  --mount=type=cache,target=/var/lib/apt,sharing=locked \
+  apt update && apt-get --no-install-recommends install -y libaio-dev git
+
+COPY --from=oracle-download /opt/instantclient_23_8 /opt/instantclient_23_8
+RUN echo /opt/instantclient_23_8 > /etc/ld.so.conf.d/oracle-instantclient.conf && ldconfig
+
+# Install the Dagster pipelines' dependencies using the lockfile and settings
+WORKDIR /opt/dagster
+COPY pyproject.toml uv.lock ./
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen --only-group dagster-deploy-pipelines
+
+# Then, add the rest of the project source code and install it
+# Installing separately from its dependencies allows optimal layer caching
+COPY pipelines pipelines
+COPY --from=dbt-build /opt/dagster/warehouse warehouse
+
+# Run and expose Dagster
+EXPOSE 3030
+CMD ["dagster", "code-server", "start", "-h", "0.0.0.0", "-p", "3030", "-m", "pipelines.definitions"]

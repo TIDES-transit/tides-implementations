@@ -1,0 +1,76 @@
+repos:
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.11.12
+    hooks:
+      - id: ruff
+        name: ruff (non-warehouse)
+        args: ["--fix"]
+        exclude: ^warehouse/
+      - id: ruff
+        name: ruff (warehouse)
+        args: ["--fix", "--config", "pyproject.toml"]
+        files: ^warehouse/
+      - id: ruff-format
+        name: ruff-format (non-warehouse)
+        exclude: ^warehouse/
+      - id: ruff-format
+        name: ruff-format (warehouse)
+        args: ["--config", "pyproject.toml"]
+        files: ^warehouse/
+
+  - repo: https://github.com/sqlfluff/sqlfluff
+    rev: 3.4.1
+    hooks:
+      - &sqlfluff_base # Base is our -lint job, override anchor for -fix and -lint-ci
+        id: sqlfluff-lint
+        name: sqlfluff-lint
+        args:
+          - "--config"
+          - "pyproject.toml"
+          - "--dialect"
+          - "duckdb"
+        files: ^warehouse/.*\.sql$
+        exclude: ^warehouse/(data-clean-scripts)/.*\.sql$
+        additional_dependencies:
+          - "sqlfluff-templater-dbt==3.4.1"
+          - "duckdb==1.3.0"
+          - "dbt==1.0.0.40.8"
+          - "dbt-core==1.10.13"
+          - "dbt-duckdb==1.9.3"
+          - "dbt-trino==1.9.3"
+      - <<: *sqlfluff_base # Only changes hook-name
+        id: sqlfluff-fix
+        name: sqlfluff-fix
+      - <<: *sqlfluff_base # Needs to add github annotations for CI
+        id: sqlfluff-lint
+        alias: sqlfluff-lint-ci
+        name: sqlfluff-lint-ci
+        args:
+          - "--config"
+          - "pyproject.toml"
+          - "--dialect"
+          - "duckdb"
+          - "--format"
+          - "github-annotation-native"
+          - "--annotation-level"
+          - "failure"
+        stages: [manual]
+
+  - repo: https://github.com/igorshubovych/markdownlint-cli
+    rev: v0.37.0
+    hooks:
+      - id: markdownlint
+        args: ["--config", ".markdownlint.json"]
+        exclude: "^.clinerules/"
+
+  - repo: https://github.com/kynan/nbstripout
+    rev: 0.8.1
+    hooks:
+      - id: nbstripout
+
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v5.0.0
+    hooks:
+      - id: check-merge-conflict
+        args: ["--assume-in-merge"]
+        exclude: "^.clinerules/"

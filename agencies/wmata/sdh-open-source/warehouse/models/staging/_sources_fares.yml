@@ -1,0 +1,418 @@
+version: 2
+
+sources:
+  # fare tables
+  - name: faregate_data
+    schema: "{{ 'sample_data' if target.type == 'duckdb' else 'faregate_data_main' }}"
+    tables:
+      - name: faregate_data_mtn
+        identifier: "{{ 'faregate_data_mtn' if target.type == 'duckdb' else 'SOURCE_TABLE_A' }}"
+        meta:
+          dagster:
+            asset_key: ["faregate_data_mtn"]
+        columns:
+          - name: rowid
+            description: "{{ doc('field_row_id')}}"
+          - name: occur_dtime
+            description: "{{ doc('field_occur_dtime') }}"
+          - name: mezz_id
+            description: "{{ doc('field_mezz_id') }}"
+          - name: eqmt_type_id
+            description: "{{ doc('field_eqmt_type_id') }}"
+          - name: eqmt_id
+            description: "{{ doc('field_eqmt_id') }}"
+          - name: event_cd
+            description: "{{ doc('field_event_cd') }}"
+          - name: msg_sno
+            description: "{{ doc('field_msg_sno') }}"
+          - name: serial_num
+            description: "{{ doc('field_serial_num') }}"
+          - name: event_argmt
+            description: "{{ doc('field_event_argmt') }}"
+          - name: stn_id
+            description: "{{ doc('field_stn_id') }}"
+          - name: event_type_cd
+            description: "{{ doc('field_event_type_cd') }}"
+          - name: msg_type_cd
+            description: "{{ doc('field_msg_type_cd') }}"
+          - name: eqmt_send_event_flg
+            description: "{{ doc('field_eqmt_send_event_flg') }}"
+          - name: reg_dtime
+            description: "{{ doc('field_reg_dtime') }}"
+          - name: reg_usr_id
+            description: "{{ doc('field_reg_usr_id') }}"
+          - name: upd_dtime
+            description: "{{ doc('field_upd_dtime') }}"
+          - name: upd_usr_id
+            description: "{{ doc('field_upd_usr_id') }}"
+          - name: inserted_dtm
+            description: "{{ doc('field_inserted_dtm') }}"
+          - name: alarm_level
+            description: "{{ doc('field_alarm_level') }}"
+      - name: faregate_data_orgn
+        identifier: "{{ 'faregate_data_orgn' if target.type == 'duckdb' else 'SOURCE_TABLE_B' }}"
+        meta:
+          dagster:
+            asset_key: ["faregate_data_orgn"]
+        columns:
+          - name: rowid
+            description: "{{ doc('field_row_id')}}"
+          - name: trxn_dtime
+            description: "{{ doc('field_trxn_dtime') }}"
+          - name: mezz_id
+            description: "{{ doc('field_mezz_id') }}"
+          - name: eqmt_type_id
+            description: "{{ doc('field_eqmt_type_id') }}"
+          - name: eqmt_id
+            description: "{{ doc('field_eqmt_id') }}"
+          - name: trxn_type_cd
+            description: "{{ doc('field_trxn_type_cd') }}"
+          - name: trxn_sno
+            description: "{{ doc('field_trxn_sno') }}"
+          - name: stn_id
+            description: "{{ doc('field_stn_id') }}"
+          - name: cid_id
+            description: "{{ doc('field_cid_id') }}"
+          - name: cid_ser_num
+            description: "{{ doc('field_cid_ser_num') }}"
+          - name: trxn_utc_dtime
+            description: "{{ doc('field_trxn_utc_dtime') }}"
+          - name: csc_mfg_id
+            description: "{{ doc('field_csc_mfg_id') }}"
+          - name: rider_cls_cd
+            description: "{{ doc('field_rider_cls_cd') }}"
+          - name: ppt_loc
+            description: "{{ doc('field_ppt_loc') }}"
+          - name: trxn_stat_cd
+            description: "{{ doc('field_trxn_stat_cd') }}"
+          - name: fare_inst_id
+            description: "{{ doc('field_fare_inst_id') }}"
+          - name: rider_remain_cnt
+            description: "{{ doc('field_rider_remain_cnt') }}"
+          - name: sv_trxn_val
+            description: "{{ doc('field_sv_trxn_val') }}"
+          - name: sv_remain_val
+            description: "{{ doc('field_sv_remain_val') }}"
+          - name: trxn_cd
+            description: "{{ doc('field_trxn_cd') }}"
+          - name: oper_stat_result_cd
+            description: "{{ doc('field_oper_stat_result_cd') }}"
+          - name: last_use_dtime
+            description: "{{ doc('field_last_use_dtime') }}"
+          - name: last_use_loc_cd
+            description: "{{ doc('field_last_use_loc_cd') }}"
+          - name: occur_dtime
+            description: "{{ doc('field_occur_dtime') }}"
+          - name: msg_type_cd
+            description: "{{ doc('field_msg_type_cd') }}"
+          - name: msg_sno
+            description: "{{ doc('field_msg_sno') }}"
+          - name: reg_dtime
+            description: "{{ doc('field_reg_dtime') }}"
+          - name: reg_usr_id
+            description: "{{ doc('field_reg_usr_id') }}"
+          - name: upd_dtime
+            description: "{{ doc('field_upd_dtime') }}"
+          - name: upd_usr_id
+            description: "{{ doc('field_upd_usr_id') }}"
+          - name: csc_sno
+            description: "{{ doc('field_csc_sno') }}"
+          - name: trxn_no
+            description: "{{ doc('field_trxn_no') }}"
+          - name: alpo_use_val
+            description: "{{ doc('field_alpo_use_val') }}"
+          - name: prod_use_load
+            description: "{{ doc('field_prod_use_load') }}"
+          - name: inserted_dtm
+            description: "{{ doc('field_inserted_dtm') }}"
+          - name: fare_table_id
+            description: "{{ doc('field_fare_table_id') }}"
+          - name: eis_num
+            description: "{{ doc('field_eis_num') }}"
+          - name: csc_num
+            description: "{{ doc('field_csc_num') }}"
+  - name: fare
+    schema: "{{ 'sample_data' if target.type == 'duckdb' else 'fare' }}"
+    tables:
+      - name: fare_sale
+        identifier: "{{ 'fare_sale' if target.type == 'duckdb' else 'fare_sale_transaction' }}"
+        meta:
+          dagster:
+            asset_key: ["fare_sale"]
+        columns:
+          - name: rowid
+            description: "{{ doc('field_row_id')}}"
+          - name: device_id
+            description: "{{ doc('field_device_id') }}"
+          - name: transaction_id
+            description: "{{ doc('field_transaction_id') }}"
+          - name: transaction_dtm
+            description: "{{ doc('field_transaction_dtm') }}"
+          - name: operator_id
+            description: "{{ doc('field_operator_id') }}"
+          - name: media_type_id
+            description: "{{ doc('field_media_type_id') }}"
+          - name: sale_transaction_type
+            description: "{{ doc('field_sale_transaction_type') }}"
+          - name: quantity
+            description: "{{ doc('field_quantity') }}"
+          - name: bonus_added
+            description: "{{ doc('field_bonus_added') }}"
+          - name: rides_added
+            description: "{{ doc('field_rides_added') }}"
+          - name: deposit
+            description: "{{ doc('field_deposit') }}"
+          - name: sv_amount_used
+            description: "{{ doc('field_sv_amount_used') }}"
+          - name: cr_db_amount
+            description: "{{ doc('field_cr_db_amount') }}"
+          - name: region_id
+            description: "{{ doc('field_region_id') }}"
+          - name: data_format
+            description: "{{ doc('field_data_format') }}"
+          - name: rev_or_test
+            description: "{{ doc('field_rev_or_test') }}"
+          - name: country
+            description: "{{ doc('field_country') }}"
+          - name: agency_id
+            description: "{{ doc('field_agency_id') }}"
+          - name: transaction_status_cd
+            description: "{{ doc('field_transaction_status_cd') }}"
+          - name: fare_instrument_id
+            description: "{{ doc('field_fare_instrument_id') }}"
+          - name: service_type
+            description: "{{ doc('field_service_type') }}"
+          - name: inserted_dtm
+            description: "{{ doc('field_inserted_dtm') }}"
+          - name: updated_dtm
+            description: "{{ doc('field_updated_dtm') }}"
+          - name: processed_flag
+            description: "{{ doc('field_processed_flag') }}"
+          - name: facid
+            description: "{{ doc('field_facid') }}"
+          - name: autoload_event_id
+            description: "{{ doc('field_autoload_event_id') }}"
+          - name: sv_transaction
+            description: "{{ doc('field_sv_transaction') }}"
+          - name: sv_remaining
+            description: "{{ doc('field_sv_remaining') }}"
+          - name: rides_remaining
+            description: "{{ doc('field_rides_remaining') }}"
+          - name: net_value
+            description: "{{ doc('field_net_value') }}"
+          - name: bus_id
+            description: "{{ doc('field_bus_id') }}"
+          - name: run_id
+            description: "{{ doc('field_run_id') }}"
+          - name: route_id
+            description: "{{ doc('field_route_id') }}"
+          - name: fare_table_id
+            description: "{{ doc('field_fare_table_id') }}"
+          - name: receipt_issued
+            description: "{{ doc('field_receipt_issued') }}"
+          - name: load_type_id
+            description: "{{ doc('field_load_type_id') }}"
+          - name: product_use_load_id
+            description: "{{ doc('field_product_use_load_id') }}"
+          - name: authority_id
+            description: "{{ doc('field_authority_id') }}"
+          - name: cash_collected
+            description: "{{ doc('field_cash_collected') }}"
+          - name: action_cd
+            description: "{{ doc('field_action_cd') }}"
+          - name: retrieval_ref_num
+            description: "{{ doc('field_retrieval_ref_num') }}"
+          - name: replacement_fee
+            description: "{{ doc('field_replacement_fee') }}"
+          - name: merchant_id
+            description: "{{ doc('field_merchant_id') }}"
+          - name: merchant_type
+            description: "{{ doc('field_merchant_type') }}"
+          - name: administrative_fee
+            description: "{{ doc('field_administrative_fee') }}"
+          - name: route_number
+            description: "{{ doc('field_route_number') }}"
+          - name: receipt_ticket_number
+            description: "{{ doc('field_receipt_ticket_number') }}"
+          - name: date_cutover_time
+            description: "{{ doc('field_date_cutover_time') }}"
+          - name: response_code
+            description: "{{ doc('field_response_code') }}"
+          - name: auth_id_response
+            description: "{{ doc('field_auth_id_response') }}"
+          - name: pos_entry_mode
+            description: "{{ doc('field_pos_entry_mode') }}"
+          - name: processing_code
+            description: "{{ doc('field_processing_code') }}"
+          - name: terminal_id
+            description: "{{ doc('field_terminal_id') }}"
+          - name: alighting_stop
+            description: "{{ doc('field_alighting_stop') }}"
+          - name: high_zone
+            description: "{{ doc('field_high_zone') }}"
+          - name: low_zone
+            description: "{{ doc('field_low_zone') }}"
+          - name: group_id
+            description: "{{ doc('field_group_id') }}"
+          - name: group_seq_no
+            description: "{{ doc('field_group_seq_no') }}"
+          - name: home_garage
+            description: "{{ doc('field_home_garage') }}"
+          - name: benefit_value
+            description: "{{ doc('field_benefit_value') }}"
+          - name: boarding_stop
+            description: "{{ doc('field_boarding_stop') }}"
+          - name: local_logon_id
+            description: "{{ doc('field_local_logon_id') }}"
+          - name: device_transaction_id
+            description: "{{ doc('field_device_transaction_id') }}"
+          - name: latitude
+            description: "{{ doc('field_latitude') }}"
+          - name: longitude
+            description: "{{ doc('field_longitude') }}"
+          - name: transit_mode_id
+            description: "{{ doc('field_transit_mode_id') }}"
+          - name: participant_inserted_dtm
+            description: "{{ doc('field_participant_inserted_dtm') }}"
+          - name: participant_transit_day
+            description: "{{ doc('field_participant_transit_day') }}"
+          - name: participant_financial_day
+            description: "{{ doc('field_participant_financial_day') }}"
+          - name: eod_processed_flag
+            description: "{{ doc('field_eod_processed_flag') }}"
+          - name: fa_processed_flag
+            description: "{{ doc('field_fa_processed_flag') }}"
+          - name: alp_txn_flag
+            description: "{{ doc('field_alp_txn_flag') }}"
+          - name: fare_level_id
+            description: "{{ doc('field_fare_level_id') }}"
+          - name: run_route_record_identifier
+            description: "{{ doc('field_run_route_record_identifier') }}"
+          - name: lat_long_data
+            description: "{{ doc('field_lat_long_data') }}"
+          - name: incorrect_transaction_dtm
+            description: "{{ doc('field_incorrect_transaction_dtm') }}"
+          - name: inter_fare_queue_mesg_nbr
+            description: "{{ doc('field_inter_fare_queue_mesg_nbr') }}"
+          - name: inter_fare_queue_batch_nbr
+            description: "{{ doc('field_inter_fare_queue_batch_nbr') }}"
+          - name: orig_transaction_status_cd
+            description: "{{ doc('field_orig_transaction_status_cd') }}"
+          - name: serial_nbr
+            description: "{{ doc('field_serial_nbr') }}"
+          - name: employee_id
+            description: "{{ doc('field_employee_id') }}"
+          - name: employee_identification
+            description: "{{ doc('field_employee_identification') }}"
+          - name: employee_serial_nbr
+            description: "{{ doc('field_employee_serial_nbr') }}"
+      - name: fare_use
+        identifier: "{{ 'fare_use' if target.type == 'duckdb' else 'fare_use_transaction' }}"
+        meta:
+          dagster:
+            asset_key: ["fare_use"]
+        columns:
+          - name: rowid
+            description: "{{ doc('field_row_id')}}"
+          - name: device_id
+            description: "{{ doc('field_device_id') }}"
+          - name: transaction_id
+            description: "{{ doc('field_transaction_id') }}"
+          - name: transaction_dtm
+            description: "{{ doc('field_transaction_dtm') }}"
+          - name: operator_id
+            description: "{{ doc('field_operator_id') }}"
+          - name: use_transaction_type
+            description: "{{ doc('field_use_transaction_type') }}"
+          - name: media_type_id
+            description: "{{ doc('field_media_type_id') }}"
+          - name: country
+            description: "{{ doc('field_country') }}"
+          - name: region_id
+            description: "{{ doc('field_region_id') }}"
+          - name: riders
+            description: "{{ doc('field_riders') }}"
+          - name: service_type
+            description: "{{ doc('field_service_type') }}"
+          - name: inserted_dtm
+            description: "{{ doc('field_inserted_dtm') }}"
+          - name: updated_dtm
+            description: "{{ doc('field_updated_dtm') }}"
+          - name: run_id
+            description: "{{ doc('field_run_id') }}"
+          - name: bus_id
+            description: "{{ doc('field_bus_id') }}"
+          - name: fare_table_id
+            description: "{{ doc('field_fare_table_id') }}"
+          - name: manual_override
+            description: "{{ doc('field_manual_override') }}"
+          - name: use_type
+            description: "{{ doc('field_use_type') }}"
+          - name: journey_start_dtm
+            description: "{{ doc('field_journey_start_dtm') }}"
+          - name: sv_remaining
+            description: "{{ doc('field_sv_remaining') }}"
+          - name: sv_transaction
+            description: "{{ doc('field_sv_transaction') }}"
+          - name: sv_adjusted_txn
+            description: "{{ doc('field_sv_adjusted_txn') }}"
+          - name: rides_remaining
+            description: "{{ doc('field_rides_remaining') }}"
+          - name: days_valid
+            description: "{{ doc('field_days_valid') }}"
+          - name: fare_instrument_id
+            description: "{{ doc('field_fare_instrument_id') }}"
+          - name: agency_id
+            description: "{{ doc('field_agency_id') }}"
+          - name: product_use_load_id
+            description: "{{ doc('field_product_use_load_id') }}"
+          - name: validity_period
+            description: "{{ doc('field_validity_period') }}"
+          - name: transaction_status_cd
+            description: "{{ doc('field_transaction_status_cd') }}"
+          - name: transfer_count
+            description: "{{ doc('field_transfer_count') }}"
+          - name: start_dtm
+            description: "{{ doc('field_start_dtm') }}"
+          - name: data_format
+            description: "{{ doc('field_data_format') }}"
+          - name: rev_or_test
+            description: "{{ doc('field_rev_or_test') }}"
+          - name: stop_point_id
+            description: "{{ doc('field_stop_point_id') }}"
+          - name: previous_stop_point_id
+            description: "{{ doc('field_previous_stop_point_id') }}"
+          - name: last_use_operator_id
+            description: "{{ doc('field_last_use_operator_id') }}"
+          - name: route_id
+            description: "{{ doc('field_route_id') }}"
+          - name: facid
+            description: "{{ doc('field_facid') }}"
+          - name: authority_id
+            description: "{{ doc('field_authority_id') }}"
+          - name: home_garage
+            description: "{{ doc('field_home_garage') }}"
+          - name: local_logon_id
+            description: "{{ doc('field_local_logon_id') }}"
+          - name: route_number
+            description: "{{ doc('field_route_number') }}"
+          - name: device_transaction_id
+            description: "{{ doc('field_device_transaction_id') }}"
+          - name: latitude
+            description: "{{ doc('field_latitude') }}"
+          - name: longitude
+            description: "{{ doc('field_longitude') }}"
+          - name: transit_mode_id
+            description: "{{ doc('field_transit_mode_id') }}"
+          - name: participant_inserted_dtm
+            description: "{{ doc('field_participant_inserted_dtm') }}"
+          - name: participant_transit_day
+            description: "{{ doc('field_participant_transit_day') }}"
+          - name: serial_nbr
+            description: "{{ doc('field_serial_nbr') }}"
+          - name: employee_id
+            description: "{{ doc('field_employee_id') }}"
+          - name: employee_identification
+            description: "{{ doc('field_employee_identification') }}"
+          - name: employee_serial_nbr
+            description: "{{ doc('field_employee_serial_nbr') }}"

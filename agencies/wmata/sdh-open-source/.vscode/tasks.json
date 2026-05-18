@@ -1,0 +1,5 @@
+{
+  "version": "2.0.0",
+  // Note, previously had some dbt-specific tasks, but removed these.
+  "tasks": []
+}

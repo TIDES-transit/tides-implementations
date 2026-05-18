@@ -1,0 +1,429 @@
+version: 2
+
+models:
+  - name: int_tides_fare_transactions_fare
+    description: >
+      Intermediate model (i.e., without data quality filters) with fare transactions from FARE data sources
+      (FARE_SALE and FARE_USE). This model focuses exclusively on FARE data in alignment with the TIDES
+      schema modification proposal by [AGENCY].
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `source_system`, `transaction_id`, and `event_timestamp`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: transaction_id
+        description: "{{ doc('field_transaction_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: event_timestamp
+        description: "{{ doc('field_event_timestamp') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: location_ping_id
+        description: "{{ doc('field_location_ping_id') }}"
+      - name: amount
+        description: "{{ doc('field_amount') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: currency_type
+        description: "{{ doc('field_currency_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["USD"]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "Activate",
+                    "Add",
+                    "New",
+                    "Purchase",
+                    "Other",
+                    "Unknown action type",
+                    "Enter",
+                    "Exit",
+                    "Transfer entrance",
+                    "Transfer exit",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id_performed
+        description: "{{ doc('field_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trip_id_scheduled') }}"
+      - name: pattern_id
+        description: "{{ doc('field_pattern_id') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_device_id') }}"
+      - name: fare_id
+        description: "{{ doc('field_fare_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_id') }}"
+      - name: num_riders
+        description: "{{ doc('field_num_riders') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "> 0"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: fare_media_id
+        description: "{{ doc('field_fare_media_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              config:
+                severity: warn # TODO: revert after figuring out source data issue
+                where: "service_date >= current_date - interval '3' day"
+              arguments:
+                values:
+                  [
+                    "Smart card or ticket",
+                    "Magnetic-stripe card or ticket",
+                    "Cash or coins",
+                    "Other type",
+                  ]
+      - name: rider_category
+        description: "{{ doc('field_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_fare_product') }}"
+      - name: fare_period
+        description: "{{ doc('field_fare_period') }}"
+      - name: fare_capped
+        description: "{{ doc('field_fare_capped') }}"
+      - name: token_id
+        description: "{{ doc('field_token_id') }}"
+      - name: balance
+        description: "{{ doc('field_balance') }}"
+      - name: source_system
+        description: "{{ doc('field_source_system') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["FARE_SALE", "FARE_USE"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: int_tides_fare_transactions_vendor_2
+    description: >
+      Intermediate model transforming vendor_2 open payment data into TIDES fare transactions schema.
+      Relies on `int_vendor_2_with_transfers` (which is based on vendor_2 device transactions, joining in transfers and connection data)
+      and additional information from micropayments table.
+    columns:
+      - name: transaction_id
+        description: "{{ doc('field_transaction_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: event_timestamp
+        description: "{{ doc('field_event_timestamp') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: location_ping_id
+        description: "{{ doc('field_location_ping_id') }}"
+      - name: amount
+        description: "{{ doc('field_amount') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: ">= 0"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: currency_type
+        description: "{{ doc('field_currency_type') }}"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["Enter", "Transfer entrance", "Exit", "Transfer exit"]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: trip_id_performed
+        description: "{{ doc('field_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trip_id_scheduled') }}"
+      - name: pattern_id
+        description: "{{ doc('field_pattern_id') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_device_id') }}"
+      - name: fare_id
+        description: "{{ doc('field_fare_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_id') }}"
+      - name: num_riders
+        description: "{{ doc('field_num_riders') }}"
+      - name: fare_media_id
+        description: "{{ doc('field_fare_media_id') }}"
+      - name: rider_category
+        description: "{{ doc('field_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_fare_product') }}"
+      - name: fare_period
+        description: "{{ doc('field_fare_period') }}"
+      - name: fare_capped
+        description: "{{ doc('field_fare_capped') }}"
+      - name: token_id
+        description: "{{ doc('field_token_id') }}"
+      - name: balance
+        description: "{{ doc('field_balance') }}"
+      - name: source_system
+        description: "{{ doc('field_source_system') }}"
+      - name: charge_type
+        description: "{{ doc('field_lp_charge_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "complete_variable_fare",
+                    "flat_fare",
+                    "incomplete_variable_fare",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: micropayment_id
+        description: "{{ doc('field_lp_micropayment_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: aggregation_id
+        description: "{{ doc('field_lp_aggregation_id') }}"
+      - name: fare_amount
+        description: "{{ doc('field_lp_fare_amount') }}"
+      - name: adjustment_amount
+        description: "{{ doc('field_lp_adjustment_amount') }}"
+      - name: adjustment_description
+        description: "{{ doc('field_lp_adjustment_description') }}"
+      - name: nominal_amount
+        description: "{{ doc('field_lp_nominal_amount') }}"
+      - name: charge_amount
+        description: "{{ doc('field_lp_charge_amount') }}"
+
+  - name: int_vendor_2_with_transfers
+    description: >
+      Intermediate model that combines vendor_2 device transactions with fare, transfer, and connection information.
+      Expands fares to individual transaction level using boarded/alighted transaction IDs and enriches with
+      transfer and connection metadata. Serves as the foundation for TIDES fare transaction transformation.
+    config:
+      event_time: service_date
+    columns:
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+      - name: vendor_2_transaction_id
+        description: "{{ doc('field_lp_vendor_2_transaction_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: journey_id
+        description: "{{ doc('field_lp_journey_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: trip_id
+        description: "{{ doc('field_lp_trip_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: transaction_timestamp_utc
+        description: "{{ doc('field_lp_transaction_timestamp_utc') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: location_id
+        description: "{{ doc('field_lp_location_id') }}"
+      - name: location_name
+        description: "{{ doc('field_lp_location_name') }}"
+      - name: transaction_type
+        description: "{{ doc('field_lp_type') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["ON", "OFF", "SINGLE"]
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: vehicle_id
+        description: "{{ doc('field_lp_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_lp_device_id') }}"
+      - name: route_id
+        description: "{{ doc('field_lp_route_id') }}"
+      - name: service_name
+        description: "{{ doc('field_lp_service_name') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn # TODO: revert after figuring out source data issue
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: fare_amount
+        description: "{{ doc('field_lp_fare_amount') }}"
+      - name: adjustment_amount
+        description: "{{ doc('field_lp_adjustment_amount') }}"
+      - name: adjustment_description
+        description: "{{ doc('field_lp_adjustment_description') }}"
+      - name: trip_processed_timestamp_utc
+        description: "{{ doc('field_lp_trip_processed_timestamp_utc') }}"
+      - name: transaction_role
+        description: "{{ doc('field_lp_transaction_role') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["boarded", "alighted"]
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: currency_code
+        description: "{{ doc('field_lp_currency_code') }}"
+      - name: transfer_id
+        description: "{{ doc('field_lp_transfer_id') }}"
+      - name: transfer_from_service
+        description: "{{ doc('field_lp_from_service_name') }}"
+      - name: transfer_to_service
+        description: "{{ doc('field_lp_to_service_name') }}"
+      - name: transfer_trip_role
+        description: "{{ doc('field_lp_transfer_trip_role') }}"
+      - name: has_transfer
+        description: "{{ doc('field_lp_has_transfer') }}"
+      - name: connection_id
+        description: "{{ doc('field_lp_connection_id') }}"
+      - name: connection_trip_role
+        description: "{{ doc('field_lp_connection_trip_role') }}"
+      - name: has_connection
+        description: "{{ doc('field_lp_has_connection') }}"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+          - accepted_values:
+              arguments:
+                values: ["Enter", "Exit", "Transfer entrance", "Transfer exit"]
+              config:
+                severity: warn
+                where: "transaction_timestamp_utc >= current_date - interval '3' day"
+      - name: has_adjustment
+        description: "{{ doc('field_lp_has_adjustment') }}"

@@ -1,0 +1,49 @@
+name: Bug Report
+description: Report a data pipeline, processing, or analysis issue.
+projects: ["[ORGANIZATION]/2"]
+type: "Bug"
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: |
+        Please describe what was being done when you encountered the bug, including:
+           - Specific tables and columns being used
+           - Tool(s) being used when the bug surfaced: dbt, dagster, Power BI, Tableau, SQL viewer
+           - Resulting bug or unexpected behavior
+      placeholder: Tell us what happened
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Please provide any steps to reproduce this bug, or identify if you have not been able to reproduce the bug.
+      placeholder: |
+        Tell us how to reproduce the bug
+        1.
+        2.
+        3.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen when the reproduce steps are followed?
+      placeholder: Tell us what you expected to see
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        A few tips on attributes:
+        - **Assignee**: Optional
+        - **Label**: Avoid
+        - **Issue Type**: Leave as "Bug"
+        - **Milestone**: Optional
+        - After issue is created, you can enter further project details on the Workstream, Priority, and Size under project details (no need to fill Estimate)

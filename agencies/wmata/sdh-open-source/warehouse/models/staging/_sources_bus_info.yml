@@ -1,0 +1,168 @@
+version: 2
+
+sources:
+  - name: bus_info
+    schema: "{{ 'bus_data' if target.type == 'duckdb' else 'businfo' }}"
+    tables:
+      - name: bus_info
+        identifier: "{{ 'bus_info' if target.type == 'duckdb' else 'BUS_INFO_DATA_RAW' }}"
+        meta:
+          dagster:
+            asset_key: ["bus_info_data"]
+        columns:
+          - name: product_version
+          - name: route_id
+          - name: bus_id
+          - name: operator_id
+          - name: run_id
+          - name: block_id
+          - name: pattern_id
+          - name: trip_id
+          - name: workid1
+          - name: workid2
+          - name: timepoint_id
+          - name: stop_id
+          - name: geofence_id
+          - name: ta_geo_id
+          - name: cad_msg_id
+          - name: transfer_id
+          - name: service_date
+          - name: dest_sign_code
+          - name: dest_sign_type
+          - name: dest_sign_route_text
+          - name: trip_type
+          - name: departure_time
+          - name: route_direction
+          - name: trip_start_time
+          - name: event_time
+          - name: event_time_utc
+          - name: event_type
+          - name: passenger_load
+          - name: stop_back_door_entry
+          - name: stop_front_door_entry
+          - name: stop_front_door_exit
+          - name: stop_back_door_exit
+          - name: route_status
+          - name: dwell_time
+          - name: delta_time
+          - name: wheel_chair
+          - name: tsp_event
+          - name: stop_speed
+          - name: timepoint_type
+          - name: timepoint_dwell
+          - name: timepoint_status
+          - name: bicycle_event
+          - name: kneel_event
+          - name: stop_rear_door_only_entry
+          - name: stop_rear_door_only_exit
+          - name: stop_center_door_only_entry
+          - name: stop_center_door_only_exit
+          - name: stop_aux2_door_entry
+          - name: stop_aux2_door_exit
+          - name: stop_sequence
+          - name: latitude
+          - name: longitude
+          - name: heading
+          - name: odometer_distance
+          - name: odometer_cumulative
+          - name: geofence_type
+          - name: geofence_enter_time
+          - name: geofence_exit_time
+          - name: fare_zone
+          - name: nav_state
+          - name: bw_message
+          - name: work_version
+          - name: work_status
+          - name: apc_type
+          - name: schedule_mode
+          - name: bw_version
+          - name: text_msg
+          - name: text_msg_category
+          - name: ack_return_code
+          - name: update_date
+          - name: row_id
+            description: "{{ doc('field_row_id') }}"
+          - name: file_name
+          - name: batch_id
+          - name: batch_row_number
+          - name: filedate
+          - name: demog_enabled
+          - name: demog_01
+          - name: demog_02
+          - name: demog_03
+          - name: demog_04
+          - name: demog_05
+          - name: demog_06
+          - name: demog_07
+          - name: demog_08
+          - name: demog_09
+          - name: demog_11
+          - name: demog_12
+          - name: demog_13
+          - name: demog_14
+          - name: demog_15
+          - name: demog_16
+          - name: demog_17
+          - name: demog_18
+          - name: demog_19
+          - name: demog_21
+          - name: demog_22
+          - name: demog_23
+          - name: demog_24
+          - name: demog_25
+          - name: demog_26
+          - name: demog_27
+          - name: demog_28
+          - name: demog_29
+  - name: near_realtime_bus_info
+    config:
+      enabled: "{{ target.name != 'consultant' and var('enable_realtime', false) }}"
+    schema: "avl"
+    tables:
+      - name: bus_avl_data_source
+        identifier: bus_avl_data_source
+        description: "Near real-time bus info data"
+        meta:
+          dagster:
+            asset_key: ["realtime_bus_info_data"]
+
+  - name: avl_lookups
+    config:
+      enabled: "{{ target.name != 'consultant' and var('enable_realtime', false) }}"
+    schema: "vendor_1"
+    tables:
+      - name: route_lookup_crosswalk
+        identifier: route_lookup_crosswalk
+        description: "AVL daily routes/trips data"
+        columns:
+          - name: ldate
+          - name: blockreference
+          - name: blockstartts
+          - name: blockendts
+          - name: tripidentifier
+          - name: tripstartts
+          - name: tripendts
+          - name: routevarid
+          - name: routevarname
+          - name: route
+          - name: tapatternid
+          - name: direction
+          - name: vendor_1_tripid
+          - name: isrevenue
+          - name: blockstarttime
+          - name: blockendtime
+          - name: tripstarttime
+          - name: tripendtime
+      - name: stop_lookup_crosswalk
+        identifier: stop_lookup_crosswalk
+        description: "AVL stop lookup data for geographic stops and their attributes"
+        columns:
+          - name: versionid
+          - name: geostopid
+          - name: stopid
+          - name: tageoreference
+          - name: geostopdescription
+          - name: latitude
+          - name: longitude
+          - name: heading
+            description: "{{ doc('field_avl_stops_heading') }}"

@@ -1,0 +1,32 @@
+name: Issue Template
+projects: ["[ORGANIZATION]/2"]
+description: Open a new issue.
+
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: Issue Description
+      description: Please describe the issue you would like to open.
+      placeholder: Brief description with background or rationale.
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance-criteria
+    attributes:
+      label: Acceptance Criteria
+      description: Please provide acceptance criteria for this issue to be considered resolved.
+      placeholder: |
+        - [ ] ...
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        A few tips on attributes:
+        - **Assignee**: Optional
+        - **Label**: Avoid
+        - **Issue Type**: Choose "Feature" or "Task" (Use bug report template for bugs.)
+        - **Milestone**: Optional
+        - After issue is created, you can enter further project details on the Workstream, Priority, and Size under project details (no need to fill Estimate)

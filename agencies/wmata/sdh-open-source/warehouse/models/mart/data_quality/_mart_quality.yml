@@ -1,0 +1,611 @@
+version: 2
+
+models:
+  - name: fct_tides_fare_transactions_fare_quality
+    description: >
+      "Fare transactions from FARE data sources (FARE_SALE and FARE_USE), annotated with columns describing data quality issues.
+      This model focuses exclusively on FARE data in alignment with the TIDES schema modification proposal by [AGENCY]."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_fare_transactions_fare')
+          config:
+            severity: warn
+            meta:
+              dagster:
+                asset_key: ["fct_tides_fare_transactions_fare_quality"]
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - unique:
+              config:
+                # Oracle ROWID issues spotted in Trino, downgrading, see #788.
+                severity: warn
+      - name: row_hash
+        description: "{{ doc('field_row_hash') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "= true"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: has_transaction_id
+        description: "{{ doc('field_has_transaction_id') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_service_date') }}"
+      - name: has_event_timestamp
+        description: "{{ doc('field_has_event_timestamp') }}"
+      - name: has_amount
+        description: "{{ doc('field_has_amount') }}"
+      - name: has_fare_action
+        description: "{{ doc('field_has_fare_action') }}"
+      - name: has_valid_fare_action
+        description: "{{ doc('field_has_valid_fare_action') }}"
+      - name: has_valid_fare_media_id
+        description: "{{ doc('field_has_valid_fare_media_id') }}"
+      - name: invalid_reason
+        description: "{{ doc('field_invalid_reason') }}"
+      - name: transaction_id
+        description: "{{ doc('field_transaction_id') }}"
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_event_timestamp') }}"
+      - name: location_ping_id
+        description: "{{ doc('field_location_ping_id') }}"
+      - name: amount
+        description: "{{ doc('field_amount') }}"
+      - name: currency_type
+        description: "{{ doc('field_currency_type') }}"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trip_id_scheduled') }}"
+      - name: pattern_id
+        description: "{{ doc('field_pattern_id') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_device_id') }}"
+      - name: fare_id
+        description: "{{ doc('field_fare_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_id') }}"
+      - name: num_riders
+        description: "{{ doc('field_num_riders') }}"
+      - name: fare_media_id
+        description: "{{ doc('field_fare_media_id') }}"
+      - name: rider_category
+        description: "{{ doc('field_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_fare_product') }}"
+      - name: fare_period
+        description: "{{ doc('field_fare_period') }}"
+      - name: fare_capped
+        description: "{{ doc('field_fare_capped') }}"
+      - name: token_id
+        description: "{{ doc('field_token_id') }}"
+      - name: balance
+        description: "{{ doc('field_balance') }}"
+      - name: source_system
+        description: "{{ doc('field_source_system') }}"
+
+  - name: fct_tides_stop_visits_bus_quality
+    description: >
+      "Summarized boarding, alighting, arrival, departure, and other events (kneel engaged, ramp deployed, etc.)
+      by trip and stop for each service date, annotated with columns describing data quality issues."
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: row_hash
+        description: "{{ doc('field_row_hash') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+      - name: in_grouped_row
+        description: "{{ doc('field_in_grouped_row') }}"
+      - name: grouped_row
+        description: "{{ doc('field_stop_visits_grouped_row') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_service_date') }}"
+      - name: has_trip_id_performed
+        description: "{{ doc('field_has_trip_id_performed') }}"
+      - name: has_positive_trip_stop_sequence
+        description: "{{ doc('field_has_positive_trip_stop_sequence') }}"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: dwell_imputed
+        description: "{{ doc('field_stop_visits_dwell_imputed') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }}"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }}"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - name: custom_ramp_deployed_count
+        description: "{{ doc('field_stop_visits_custom_ramp_deployed_count') }}"
+
+  - name: fct_tides_vehicle_locations_bus_quality
+    description: >
+      "TIDES Vehicle locations fields, annotated with columns describing data quality issues."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_vehicle_locations_bus_info')
+          config:
+            severity: warn
+            meta:
+              dagster:
+                asset_key: ["fct_tides_vehicle_locations_bus_quality"]
+    columns:
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_service_date') }}"
+      - name: has_trip_id_scheduled
+        description: "{{ doc('field_has_trip_id_scheduled') }}"
+      - name: has_positive_trip_stop_sequence
+        description: "{{ doc('field_has_positive_trip_stop_sequence') }}"
+      - name: has_corrected_stop_sequence
+        description: "{{ doc('field_has_corrected_stop_sequence') }}"
+      - name: has_imputed_trip_id_performed
+        description: "{{ doc('field_has_imputed_trip_id_performed') }}"
+      - name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+      - name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_vehicle_locations_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_vehicle_locations_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_vehicle_locations_device_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+      - name: current_status
+        description: "{{ doc('field_vehicle_locations_current_status') }}"
+      - name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+      - name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+      - name: gps_quality
+        description: "{{ doc('field_vehicle_locations_gps_quality') }}"
+      - name: heading
+        description: "{{ doc('field_vehicle_locations_heading') }}"
+      - name: speed
+        description: "{{ doc('field_vehicle_locations_speed') }}"
+      - name: odometer
+        description: "{{ doc('field_vehicle_locations_odometer') }}"
+      - name: schedule_deviation
+        description: "{{ doc('field_vehicle_locations_schedule_deviation') }}"
+      - name: headway_deviation
+        description: "{{ doc('field_vehicle_locations_headway_deviation') }}"
+      - name: trip_type
+        description: "{{ doc('field_vehicle_locations_trip_type') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_vehicle_locations_schedule_relationship') }}"
+      - name: trip_id_performed_imputed
+        description: "{{ doc('field_trip_id_performed_imputed') }}"
+      - name: trip_stop_sequence_imputed
+        description: "{{ doc('field_trip_stop_sequence_imputed') }}"
+      - name: scheduled_stop_sequence_imputed
+        description: "{{ doc('field_vehicle_location_scheduled_stop_sequence_imputed') }}"
+      - name: stop_id_imputed
+        description: "{{ doc('field_vehicle_locations_stop_id_imputed') }}"
+      - name: has_imputed_stop_id
+        description: "{{ doc('field_vehicle_locations_has_imputed_stop_id') }}"
+
+  - name: fct_tides_fare_transactions_vendor_2_quality
+    description: >
+      "Fare transactions from vendor_2 open payment data, annotated with columns describing data quality issues.
+      This model includes specific checks for complete variable fare micropayments to ensure balanced entry/exit pairs."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_fare_transactions_vendor_2')
+          config:
+            severity: warn
+            enabled: false # dbt-trino adapter returns None for failures; see ticket #787
+            meta:
+              dagster:
+                asset_key: ["fct_tides_fare_transactions_vendor_2_quality"]
+    columns:
+      - name: transaction_id
+        description: "{{ doc('field_transaction_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: row_hash
+        description: "{{ doc('field_row_hash') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "= true"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: invalid_reason
+        description: "{{ doc('field_invalid_reason') }}"
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: is_unbalanced_complete_variable_fare
+        description: "{{ doc('field_vendor_2_is_unbalanced_complete_variable_fare') }}"
+      - name: entry_count
+        description: "{{ doc('field_vendor_2_entry_count') }}"
+      - name: exit_count
+        description: "{{ doc('field_vendor_2_exit_count') }}"
+      - name: has_multiple_entries
+        description: "{{ doc('field_vendor_2_has_multiple_entries') }}"
+      - name: has_multiple_exits
+        description: "{{ doc('field_vendor_2_has_multiple_exits') }}"
+      - name: has_no_entry
+        description: "{{ doc('field_vendor_2_has_no_entry') }}"
+      - name: has_no_exit
+        description: "{{ doc('field_vendor_2_has_no_exit') }}"
+      - name: service_date
+        description: "{{ doc('field_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_event_timestamp') }}"
+      - name: location_ping_id
+        description: "{{ doc('field_location_ping_id') }}"
+      - name: fare_action
+        description: "{{ doc('field_fare_action') }}"
+      - name: currency_type
+        description: "{{ doc('field_currency_type') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trip_id_scheduled') }}"
+      - name: pattern_id
+        description: "{{ doc('field_pattern_id') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_device_id') }}"
+      - name: fare_id
+        description: "{{ doc('field_fare_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_id') }}"
+      - name: num_riders
+        description: "{{ doc('field_num_riders') }}"
+      - name: fare_media_id
+        description: "{{ doc('field_fare_media_id') }}"
+      - name: rider_category
+        description: "{{ doc('field_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_fare_product') }}"
+      - name: fare_period
+        description: "{{ doc('field_fare_period') }}"
+      - name: fare_capped
+        description: "{{ doc('field_fare_capped') }}"
+      - name: token_id
+        description: "{{ doc('field_token_id') }}"
+      - name: balance
+        description: "{{ doc('field_balance') }}"
+      - name: source_system
+        description: "{{ doc('field_source_system') }}"
+      - name: charge_type
+        description: "{{ doc('field_lp_charge_type') }}"
+      - name: micropayment_id
+        description: "{{ doc('field_lp_micropayment_id') }}"
+      - name: settlement_id
+        description: "{{ doc('field_lp_settlement_id') }}"
+      - name: aggregation_id
+        description: "{{ doc('field_lp_aggregation_id') }}"
+      - name: amount
+        description: "{{ doc('field_amount') }}"
+
+  - name: fct_tides_station_activities_quality
+    config:
+      event_time: service_date
+      tags: ['incremental_daily']
+    description: >
+      "Rail station activity data at the event level, annotated with columns describing data quality issues.
+      This model validates event data before aggregation in the station_activities fact table."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_disaggregated_station_activities')
+          config:
+            severity: warn
+            meta:
+              dagster:
+                asset_key: ["fct_tides_station_activities_quality"]
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key inherited from `int_disaggregated_station_activities`, constructed from `service_date`, `stop_id`, `event_timestamp`, `event_type`, and `source_system`.
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_service_date') }}"
+      - name: has_stop_id
+        description: "{{ doc('field_has_stop_id') }}"
+      - name: has_event_timestamp
+        description: "{{ doc('field_has_event_timestamp') }}"
+      - name: is_entry_consistent
+        description: "{{ doc('field_is_entry_consistent') }}"
+      - name: is_exit_consistent
+        description: "{{ doc('field_is_exit_consistent') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+      - name: invalid_reason
+        description: "{{ doc('field_invalid_reason') }}"
+      - name: service_date
+        description: "{{ doc('field_station_activities_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_station_activities_event_timestamp') }}"
+      - name: stop_id
+        description: "{{ doc('field_station_activities_stop_id') }}"
+      - name: event_type
+        description: "{{ doc('field_station_activities_event_type') }}"
+      - name: rider_category
+        description: "{{ doc('field_station_activities_rider_category') }}"
+      - name: fare_product
+        description: "{{ doc('field_station_activities_fare_product') }}"
+      - name: token_id
+        description: "{{ doc('field_station_activities_token_id') }}"
+      - name: hour_of_day
+        description: "{{ doc('field_station_activities_hour_of_day') }}"
+      - name: is_entry
+        description: "{{ doc('field_station_activities_is_entry') }}"
+      - name: is_exit
+        description: "{{ doc('field_station_activities_is_exit') }}"
+      - name: source_system
+        description: "{{ doc('field_station_activities_source_system') }}"
+
+  - name: fct_tides_trips_performed_bus_quality
+    description: "Trips performed for each service date, annotated with columns describing data quality issues."
+    data_tests:
+      - dbt_utils.equal_rowcount:
+          arguments:
+            compare_model: ref('int_tides_trips_performed_bus_info')
+          config:
+            severity: warn
+            enabled: false # dbt-trino adapter returns None for failures; see ticket #787
+            meta:
+              dagster:
+                asset_key: ["fct_tides_trips_performed_bus_quality"]
+    columns:
+      - name: has_duplicates
+        description: "{{ doc('field_has_duplicates') }}"
+      - name: dup_row_to_keep
+        description: "{{ doc('field_dup_row_to_keep') }}"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+      - name: has_service_date
+        description: "{{ doc('field_has_service_date') }}"
+      - name: has_trip_id_performed
+        description: "{{ doc('field_has_trip_id_performed') }}"
+      - name: has_trip_id_scheduled
+        description: "{{ doc('field_has_trip_id_scheduled') }}"
+      - name: has_pattern_id
+        description: "{{ doc('field_has_pattern_id') }}"
+      - name: service_date
+        description: "{{ doc('field_trips_performed_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_trips_performed_trip_id_performed') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_trips_performed_vehicle_id') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trips_performed_trip_id_scheduled') }}"
+      - name: route_id
+        description: "{{ doc('field_trips_performed_route_id') }}"
+      - name: route_type
+        description: "{{ doc('field_trips_performed_route_type') }}"
+      - name: ntd_mode
+        description: "{{ doc('field_trips_performed_ntd_mode') }}"
+      - name: route_type_agency
+        description: "{{ doc('field_trips_performed_route_type_agency') }}"
+      - name: shape_id
+        description: "{{ doc('field_trips_performed_shape_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_trips_performed_pattern_id') }}"
+      - name: direction_id
+        description: "{{ doc('field_trips_performed_direction_id') }}"
+      - name: operator_id
+        description: "{{ doc('field_trips_performed_operator_id') }}"
+      - name: block_id
+        description: "{{ doc('field_trips_performed_block_id') }}"
+      - name: trip_start_stop_id
+        description: "{{ doc('field_trips_performed_trip_start_stop_id') }}"
+      - name: trip_end_stop_id
+        description: "{{ doc('field_trips_performed_trip_end_stop_id') }}"
+      - name: schedule_trip_start
+        description: "{{ doc('field_trips_performed_schedule_trip_start') }}"
+      - name: schedule_trip_end
+        description: "{{ doc('field_trips_performed_schedule_trip_end') }}"
+      - name: actual_trip_start
+        description: "{{ doc('field_trips_performed_actual_trip_start') }}"
+      - name: actual_trip_end
+        description: "{{ doc('field_trips_performed_actual_trip_end') }}"
+      - name: trip_type
+        description: "{{ doc('field_trips_performed_trip_type') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_trips_performed_schedule_relationship') }}"
+      - name: diff_actual_vs_sched_start
+        description: "Difference between actual trip start time and scheduled trip start time (actual - scheduled)."
+      - name: diff_actual_vs_sched_total_time
+        description: "Difference between actual trip duration and scheduled trip duration."
+
+  - name: fct_tides_vehicle_locations_realtime_quality
+    description: >
+      "Quality model for realtime TIDES vehicle locations, annotated with columns describing data quality issues.
+      This model serves as a placeholder with basic validation before more comprehensive quality checks are implemented."
+    columns:
+      - name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "= true"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+      - name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+      - name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+      - name: route_id
+        description: "{{ doc('field_route_id') }}"
+
+  - name: fct_tides_stop_visits_realtime_quality
+    description: >
+      "Quality model for realtime TIDES stop visits, annotated with columns describing data quality issues.
+      This model serves as a placeholder with basic validation before more comprehensive quality checks are implemented."
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: is_valid
+        description: "{{ doc('field_is_valid') }}"
+        data_tests:
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "= true"
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"

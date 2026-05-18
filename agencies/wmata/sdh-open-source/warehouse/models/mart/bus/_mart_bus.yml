@@ -1,0 +1,338 @@
+version: 2
+
+models:
+  - name: fct_tides_stop_visits_bus
+    description: "Summarized boarding, alighting, arrival, departure, and other events (kneel engaged, ramp deployed, etc.) by trip and stop for each service date."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `trip_id_performed`, and `trip_stop_sequence`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }}"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }}"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+
+  - name: fct_tides_vehicle_locations_realtime
+    description: "Valid realtime vehicle location pings filtered from quality model."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `event_timestamp`, `schedule_relationship`,
+          `trip_id_scheduled`, `trip_stop_sequence`, `latitude`, and `longitude`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+      - name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_vehicle_locations_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_vehicle_locations_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_vehicle_locations_device_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+      - name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+      - name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+      - name: gps_quality
+        description: "{{ doc('field_vehicle_locations_gps_quality') }}"
+      - name: heading
+        description: "{{ doc('field_vehicle_locations_heading') }}"
+      - name: speed
+        description: "{{ doc('field_vehicle_locations_speed') }}"
+      - name: odometer
+        description: "{{ doc('field_vehicle_locations_odometer') }}"
+      - name: schedule_deviation
+        description: "{{ doc('field_vehicle_locations_schedule_deviation') }}"
+      - name: headway_deviation
+        description: "{{ doc('field_vehicle_locations_headway_deviation') }}"
+      - name: trip_type
+        description: "{{ doc('field_vehicle_locations_trip_type') }}"
+      - name: current_status
+        description: "{{ doc('field_vehicle_locations_current_status') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_vehicle_locations_schedule_relationship') }}"
+      - name: route_id
+        description: "{{ doc('field_route_id') }}"
+
+  - name: fct_tides_stop_visits_realtime
+    description: "Valid realtime stop visits filtered from quality model."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `trip_id_performed`, and `trip_stop_sequence`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }}"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }}"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - name: custom_ramp_deployed_count
+        description: "{{ doc('field_stop_visits_custom_ramp_deployed_count') }}"
+  - name: fct_tides_trips_performed_bus
+    description: "Trips performed for each service date."
+    data_tests:
+      - dbt_utils.unique_combination_of_columns:
+          arguments:
+            combination_of_columns:
+              - service_date
+              - trip_id_performed
+          config:
+            severity: warn #TODO diagnose PK violations and change to error
+            where: "service_date >= current_date - interval '3' day"
+    columns:
+      - name: service_date
+        description: "{{ doc('field_trips_performed_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_trips_performed_trip_id_performed') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_trips_performed_vehicle_id') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trips_performed_trip_id_scheduled') }}"
+      - name: route_id
+        description: "{{ doc('field_trips_performed_route_id') }}"
+      - name: route_type
+        description: "{{ doc('field_trips_performed_route_type') }}"
+      - name: ntd_mode
+        description: "{{ doc('field_trips_performed_ntd_mode') }}"
+      - name: route_type_agency
+        description: "{{ doc('field_trips_performed_route_type_agency') }}"
+      - name: shape_id
+        description: "{{ doc('field_trips_performed_shape_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_trips_performed_pattern_id') }}"
+      - name: direction_id
+        description: "{{ doc('field_trips_performed_direction_id') }}"
+      - name: operator_id
+        description: "{{ doc('field_trips_performed_operator_id') }}"
+      - name: block_id
+        description: "{{ doc('field_trips_performed_block_id') }}"
+      - name: trip_start_stop_id
+        description: "{{ doc('field_trips_performed_trip_start_stop_id') }}"
+      - name: trip_end_stop_id
+        description: "{{ doc('field_trips_performed_trip_end_stop_id') }}"
+      - name: schedule_trip_start
+        description: "{{ doc('field_trips_performed_schedule_trip_start') }}"
+      - name: schedule_trip_end
+        description: "{{ doc('field_trips_performed_schedule_trip_end') }}"
+      - name: actual_trip_start
+        description: "{{ doc('field_trips_performed_actual_trip_start') }}"
+      - name: actual_trip_end
+        description: "{{ doc('field_trips_performed_actual_trip_end') }}"
+      - name: trip_type
+        description: "{{ doc('field_trips_performed_trip_type') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_trips_performed_schedule_relationship') }}"
+
+  - name: fct_tides_vehicle_locations_bus
+    description: "Valid vehicle location pings."
+    columns:
+      - name: _key
+        description: |
+          Synthetic primary key constructed from `service_date`, `event_timestamp`, `schedule_relationship`,
+          `trip_id_scheduled`, `trip_stop_sequence`, `latitude`, and `longitude`.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn #TODO diagnose PK violations and change to error
+                where: "service_date >= current_date - interval '3' day"
+      - name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+      - name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+      - name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_vehicle_locations_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_vehicle_locations_scheduled_stop_sequence') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+      - name: device_id
+        description: "{{ doc('field_vehicle_locations_device_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+      - name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+      - name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+      - name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+      - name: gps_quality
+        description: "{{ doc('field_vehicle_locations_gps_quality') }}"
+      - name: heading
+        description: "{{ doc('field_vehicle_locations_heading') }}"
+      - name: speed
+        description: "{{ doc('field_vehicle_locations_speed') }}"
+      - name: odometer
+        description: "{{ doc('field_vehicle_locations_odometer') }}"
+      - name: schedule_deviation
+        description: "{{ doc('field_vehicle_locations_schedule_deviation') }}"
+      - name: headway_deviation
+        description: "{{ doc('field_vehicle_locations_headway_deviation') }}"
+      - name: trip_type
+        description: "{{ doc('field_vehicle_locations_trip_type') }}"
+      - name: current_status
+        description: "{{ doc('field_vehicle_locations_current_status') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"

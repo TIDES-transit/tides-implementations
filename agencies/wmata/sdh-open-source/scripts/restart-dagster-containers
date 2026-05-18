@@ -1,0 +1,61 @@
+#!/bin/bash
+
+set -e
+
+# Default environment file (for backwards compatibility)
+ENV_FILE="${1:-.env}"
+
+# load environment file
+set -a && source "${ENV_FILE}" && set +a
+
+echo "🔄 Restarting Dagster containers in resource group: $RESOURCE_GROUP"
+echo
+
+# Check if Azure CLI is installed
+if ! command -v az &> /dev/null; then
+    echo "❌ Azure CLI is not installed. Please install it first."
+    exit 1
+fi
+
+# Check if user is logged in
+if ! az account show &> /dev/null; then
+    echo "❌ Not logged in to Azure CLI. Please run 'az login' first."
+    exit 1
+fi
+
+# Set the subscription
+echo "🔧 Setting subscription to: $SUBSCRIPTION_ID"
+az account set --subscription "$SUBSCRIPTION_ID"
+
+# Restart each container app
+for container in "${CONTAINERS[@]}"; do
+    echo "🔄 Restarting container app: $container"
+
+    # Get the current active revision name
+    revision=$(az containerapp revision list \
+        --name "$container" \
+        --resource-group "$RESOURCE_GROUP" \
+        --query "[?properties.active].name" \
+        --output tsv)
+
+    if [ -z "$revision" ]; then
+        echo "❌ No active revision found for: $container"
+        exit 1
+    fi
+
+    echo "   📋 Active revision: $revision"
+
+    if az containerapp revision restart \
+        --name "$container" \
+        --resource-group "$RESOURCE_GROUP" \
+        --revision "$revision" \
+        --output none; then
+        echo "✅ Successfully restarted: $container"
+    else
+        echo "❌ Failed to restart: $container"
+        exit 1
+    fi
+    echo
+done
+
+echo "🎉 All Dagster containers have been restarted successfully!"

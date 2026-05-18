@@ -1,0 +1,248 @@
+version: 2
+
+models:
+  - name: stg_bus_info
+    config:
+      event_time: update_date
+    description: >
+      Staging model for raw bus info data.
+    columns:
+      #IDENTIFIERS (FOREIGN KEYS)
+      - name: product_version
+      - name: route_id
+      - name: bus_id
+      - name: operator_id
+      - name: run_id
+      - name: block_id
+      - name: pattern_id
+      - name: trip_id
+      - name: workid1
+      - name: workid2
+      - name: timepoint_id
+      - name: stop_id
+      - name: geofence_id
+      - name: ta_geo_id
+      - name: cad_msg_id
+      - name: transfer_id
+      # ROUTE / TRIP
+      - name: service_date
+      - name: dest_sign_code
+      - name: dest_sign_type
+      - name: dest_sign_route_text
+      - name: trip_type
+      - name: departure_time
+      - name: route_direction
+      - name: trip_start_time
+      # EVENT DETAILS
+      - name: event_time
+      - name: event_time_utc
+      - name: event_type
+      - name: passenger_load
+      - name: stop_back_door_entry
+      - name: stop_front_door_entry
+      - name: stop_front_door_exit
+      - name: stop_back_door_exit
+      - name: route_status
+      - name: dwell_time
+      - name: delta_time
+      - name: wheel_chair
+      - name: tsp_event
+      - name: stop_speed
+      - name: timepoint_type
+      - name: timepoint_dwell
+      - name: timepoint_status
+      - name: bicycle_event
+      - name: kneel_event
+      - name: stop_rear_door_only_entry
+      - name: stop_rear_door_only_exit
+      - name: stop_center_door_only_entry
+      - name: stop_center_door_only_exit
+      - name: stop_aux2_door_entry
+      - name: stop_aux2_door_exit
+      # LOCATION / POSITION
+      - name: stop_sequence
+      - name: latitude
+      - name: longitude
+      - name: heading
+      - name: odometer_distance
+      - name: odometer_cumulative
+      - name: geofence_type
+      - name: geofence_enter_time
+      - name: geofence_exit_time
+      - name: geofence_exit_time
+      - name: fare_zone
+      # SYSTEM ATTRIBUTES / STATUS
+      - name: nav_state
+      - name: bw_message
+      - name: work_version
+      - name: work_status
+      - name: apc_type
+      - name: schedule_mode
+      - name: bw_version
+      - name: text_msg
+      - name: text_msg_category
+      - name: ack_return_code
+      # METADATA
+      - name: update_date
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn # change to error after bringing in stop_id from gtfs
+                where: "service_date >= current_date - interval '3' day"
+
+      - name: file_name
+      - name: batch_id
+      - name: batch_row_number
+      - name: filedate
+      # DEMOGRAPHICS
+      - name: demog_enabled
+      - name: demog_01
+      - name: demog_02
+      - name: demog_03
+      - name: demog_04
+      - name: demog_05
+      - name: demog_06
+      - name: demog_07
+      - name: demog_08
+      - name: demog_09
+      - name: demog_11
+      - name: demog_12
+      - name: demog_13
+      - name: demog_14
+      - name: demog_15
+      - name: demog_16
+      - name: demog_17
+      - name: demog_18
+      - name: demog_19
+      - name: demog_21
+      - name: demog_22
+      - name: demog_23
+      - name: demog_24
+      - name: demog_25
+      - name: demog_26
+      - name: demog_27
+      - name: demog_28
+      - name: demog_29
+  - name: stg_realtime_bus_info
+    config:
+      event_time: locationupdatedts
+    description: >
+      Staging model for near real-time bus info data from the AVL system.
+    columns:
+      # IDENTIFIERS
+      - name: vehicleworkid
+      - name: vehicleid
+      - name: vehiclenumber
+      - name: versionid
+      - name: verscheduleid
+      - name: verfirmware
+      - name: runworkid
+      - name: blockworkid
+      - name: tripid
+      - name: currenttripid
+      - name: runid
+      - name: blockid
+      # TIMESTAMPS (PARSED)
+      - name: lastrecrcvddts
+      - name: llhfilterdts
+      - name: onrtdts
+      - name: offrtdts
+      - name: tripstartdts
+      - name: locationupdatedts
+      - name: service_date
+      # LOCATION DATA
+      - name: latitude
+      - name: longitude
+      - name: dirid
+      - name: hdgdeg
+      - name: speed
+      # STATUS FIELDS
+      - name: routestatusid
+      - name: vehiclestatusid
+      - name: servicetypeid
+      - name: isllvalid
+      - name: isbusfull
+      - name: isindepot
+      - name: isoploggedon
+      # PASSENGER COUNTING
+      - name: apcon
+      - name: apcoff
+      - name: apccount
+      - name: wheelchairon
+      - name: wheelchairoff
+      - name: wheelchaircount
+      # SCHEDULE DEVIATION
+      - name: scheddev
+      - name: scheddevid
+      - name: minscheddev
+      - name: maxscheddev
+      # ROUTE/TRIP CONTEXT
+      - name: currentroutevarid
+      - name: currentstopid
+      - name: nextstopid
+      - name: currenttimepointid
+      # OPERATOR/EMPLOYEE DATA
+      - name: employeeid
+      - name: logondts
+      - name: logoffdts
+      # ORIGINAL DATE FIELD
+      - name: original_service_date
+  - name: stg_avl_trips
+    description: >
+      Staging model for AVL daily routes/trips data from route_lookup_crosswalk.
+    columns:
+      # DATE FIELDS
+      - name: ldate
+        description: "Parsed date from original ldate field"
+        data_type: date
+      - name: service_date
+      # BLOCK IDENTIFIERS
+      - name: blockreference
+      - name: blockstartts
+        data_type: integer
+      - name: blockendts
+        data_type: integer
+      - name: blockstarttime
+        data_type: timestamp
+      - name: blockendtime
+        data_type: timestamp
+
+      # TRIP IDENTIFIERS
+      - name: tripidentifier
+      - name: tripstartts
+        data_type: integer
+      - name: tripendts
+        data_type: integer
+      - name: tripstarttime
+        data_type: timestamp
+      - name: tripendtime
+        data_type: timestamp
+      - name: vendor_1_tripid
+      # ROUTE INFORMATION
+      - name: routevarid
+      - name: routevarname
+      - name: route
+      - name: direction
+      - name: tapatternid
+      # TRIP ATTRIBUTES
+      - name: isrevenue
+  - name: stg_avl_stops
+    description: >
+      Staging model for AVL stop lookup data from stop_lookup_crosswalk.
+    columns:
+      # IDENTIFIERS
+      - name: versionid
+      - name: geostopid
+      - name: stopid
+      - name: tageoreference
+      # STOP INFORMATION
+      - name: geostopdescription
+      # LOCATION DATA
+      - name: latitude
+        data_type: double
+      - name: longitude
+        data_type: double
+      - name: heading
+        description: "{{ doc('field_avl_stops_heading') }}"

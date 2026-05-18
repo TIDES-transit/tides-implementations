@@ -1,0 +1,154 @@
+version: 2
+
+sources:
+  - name: bus_calendar_db
+    config:
+      enabled: "{{ target.name != 'consultant' }}"
+    schema: "bus_calendar_db"
+    tables:
+      - name: d_date_bus
+        identifier: d_date_bus
+        meta:
+          dagster:
+            asset_key: ["d_date_bus_data"]
+        columns:
+          - name: date_key
+            description: "{{ doc('field_d_date_date_key') }}"
+          - name: dateday
+            description: "{{ doc('field_d_date_dateday') }}"
+          - name: yearmo
+            description: "{{ doc('field_d_date_yearmo') }}"
+          - name: date_month
+            description: "{{ doc('field_d_date_date_month') }}"
+          - name: date_quarter
+            description: "{{ doc('field_d_date_date_quarter') }}"
+          - name: date_year
+            description: "{{ doc('field_d_date_date_year') }}"
+          - name: date_day_of_week
+            description: "{{ doc('field_d_date_date_day_of_week') }}"
+          - name: date_day_of_week_num
+            description: "{{ doc('field_d_date_date_day_of_week_num') }}"
+          - name: date_day_type
+            description: "{{ doc('field_d_date_date_day_type') }}"
+          - name: date_holiday
+            description: "{{ doc('field_d_date_date_holiday') }}"
+          - name: date_week_num
+            description: "{{ doc('field_d_date_date_week_num') }}"
+          - name: date_week_ending
+            description: "{{ doc('field_d_date_date_week_ending') }}"
+          - name: service_type
+            description: "{{ doc('field_d_date_service_type') }}"
+  - name: fare
+    config:
+      enabled: "{{ target.name != 'consultant' }}"
+    schema: "rs"
+    tables:
+      - name: bus_ridership_fare
+        identifier: f_bus_rr_totals
+        meta:
+          dagster:
+            asset_key: ["bus_ridership_fare_data"]
+        columns:
+          - name: service_date
+            description: "{{ doc('field_bus_ridership_service_date')}}"
+          - name: entdateint
+            description: "{{ doc('field_bus_ridership_entdateint') }}"
+          - name: period_key
+            description: "{{ doc('field_bus_ridership_period_key') }}"
+          - name: facid
+            description: "{{ doc('field_bus_ridership_facid') }}"
+          - name: fare_instrument_id
+            description: "{{ doc('field_bus_ridership_fare_instrument_id') }}"
+          - name: route_number
+            description: "{{ doc('field_bus_ridership_route_number') }}"
+          - name: negative_ride_id
+            description: "{{ doc('field_bus_ridership_negative_ride_id') }}"
+          - name: card_class_id
+            description: "{{ doc('field_bus_ridership_card_class_id') }}"
+          - name: control_date
+            description: "{{ doc('field_bus_ridership_control_date') }}"
+          - name: entry_cnt
+            description: "{{ doc('field_bus_ridership_entry_cnt') }}"
+          - name: transfer_cnt
+            description: "{{ doc('field_bus_ridership_transfer_cnt') }}"
+          - name: cash_ride_cnt
+            description: "{{ doc('field_bus_ridership_cash_ride_cnt') }}"
+          - name: entry_amt
+            description: "{{ doc('field_bus_ridership_entry_amt') }}"
+          - name: transfer_amt
+            description: "{{ doc('field_bus_ridership_transfer_amt') }}"
+          - name: cash_ride_amt
+            description: "{{ doc('field_bus_ridership_cash_ride_amt') }}"
+          - name: load_amt
+            description: "{{ doc('field_bus_ridership_load_amt') }}"
+          - name: incomplete_ride_cash
+            description: "{{ doc('field_bus_ridership_incomplete_ride_cash') }}"
+          - name: incomplete_nonride_cash
+            description: "{{ doc('field_bus_ridership_incomplete_nonride_cash') }}"
+          - name: ent_sv_transaction
+            description: "{{ doc('field_bus_ridership_ent_sv_transaction') }}"
+          - name: ent_alp_value_used
+            description: "{{ doc('field_bus_ridership_ent_alp_value_used') }}"
+          - name: tfr_sv_transaction
+            description: "{{ doc('field_bus_ridership_tfr_sv_transaction') }}"
+          - name: tfr_alp_value_used
+            description: "{{ doc('field_bus_ridership_tfr_alp_value_used') }}"
+          - name: mfg_id
+            description: "{{ doc('field_bus_ridership_mfg_id') }}"
+  - name: lp
+    config:
+      enabled: "{{ target.name != 'consultant' }}"
+    schema: "vendor_2"
+    tables:
+      - name: bus_ridership_lp
+        identifier: f_bus_rr_totals
+        meta:
+          dagster:
+            asset_key: ["bus_ridership_lp_data"]
+        columns:
+          - name: service_date
+            description: "{{ doc('field_bus_ridership_service_date')}}"
+          - name: entdateint
+            description: "{{ doc('field_bus_ridership_entdateint') }}"
+          - name: period_key
+            description: "{{ doc('field_bus_ridership_period_key') }}"
+          - name: facid
+            description: "{{ doc('field_bus_ridership_facid') }}"
+          - name: fare_instrument_id
+            description: "{{ doc('field_bus_ridership_fare_instrument_id') }}"
+          - name: route_number
+            description: "{{ doc('field_bus_ridership_route_number') }}"
+          - name: negative_ride_id
+            description: "{{ doc('field_bus_ridership_negative_ride_id') }}"
+          - name: card_class_id
+            description: "{{ doc('field_bus_ridership_card_class_id') }}"
+          - name: control_date
+            description: "{{ doc('field_bus_ridership_control_date') }}"
+          - name: entry_cnt
+            description: "{{ doc('field_bus_ridership_entry_cnt') }}"
+          - name: transfer_cnt
+            description: "{{ doc('field_bus_ridership_transfer_cnt') }}"
+          - name: cash_ride_cnt
+            description: "{{ doc('field_bus_ridership_cash_ride_cnt') }}"
+          - name: entry_amt
+            description: "{{ doc('field_bus_ridership_entry_amt') }}"
+          - name: transfer_amt
+            description: "{{ doc('field_bus_ridership_transfer_amt') }}"
+          - name: cash_ride_amt
+            description: "{{ doc('field_bus_ridership_cash_ride_amt') }}"
+          - name: load_amt
+            description: "{{ doc('field_bus_ridership_load_amt') }}"
+          - name: incomplete_ride_cash
+            description: "{{ doc('field_bus_ridership_incomplete_ride_cash') }}"
+          - name: incomplete_nonride_cash
+            description: "{{ doc('field_bus_ridership_incomplete_nonride_cash') }}"
+          - name: ent_sv_transaction
+            description: "{{ doc('field_bus_ridership_ent_sv_transaction') }}"
+          - name: ent_alp_value_used
+            description: "{{ doc('field_bus_ridership_ent_alp_value_used') }}"
+          - name: tfr_sv_transaction
+            description: "{{ doc('field_bus_ridership_tfr_sv_transaction') }}"
+          - name: tfr_alp_value_used
+            description: "{{ doc('field_bus_ridership_tfr_alp_value_used') }}"
+          - name: mfg_id
+            description: "{{ doc('field_bus_ridership_mfg_id') }}"

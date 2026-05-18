@@ -1,0 +1,28 @@
+name: project-open-source
+
+permissions:
+  contents: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - 657-write-redaction-requirements-for-open-sourcing
+
+concurrency:
+  group: "open-source-projection"
+  cancel-in-progress: true
+
+jobs:
+  project:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Project open-source holobranch
+        uses: JarvusInnovations/hologit@actions/projector/v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          holobranch: open-source
+          commit-to: refs/heads/open-source
+          commit-message: "Projected open-source from ${{ github.sha }}"

@@ -1,0 +1,45 @@
+#!/bin/bash
+set -e  # Exit immediately if a command exits with a non-zero status
+
+# Default environment file (for backwards compatibility)
+ENV_FILE="${1:-.env}"
+
+# load environment file
+set -a && source "${ENV_FILE}" && set +a
+
+# The CONTAINER_REGISTRY should be set in the .env file, but we set a default repository name (for backwards compatibility)
+CONTAINER_REGISTRY="${CONTAINER_REGISTRY:-[CONTAINER_REGISTRY]}"
+
+# Get JWT token for dbt
+echo "Getting Trino JWT token..."
+TRINO_JWT_TOKEN=$(cd pipelines && ../.venv/bin/python -c "from azure.identity import DefaultAzureCredential; import os; credential = DefaultAzureCredential(); token = credential.get_token(os.getenv('TRINO_OAUTH_SCOPE')); print(token.token)")
+
+if [ $? -ne 0 ]; then
+    echo "Failed to get Trino JWT token"
+    exit 1
+fi
+
+echo "Successfully acquired JWT token"
+
+
+# Build pipelines image
+echo
+echo "Building pipelines image..."
+podman build . \
+    --file pipelines/Containerfile \
+    --target dagster-pipelines \
+    --tag ${CONTAINER_REGISTRY}/[project-name]-dagster-pipelines:latest \
+    --build-arg TRINO_HOST="${TRINO_HOST}" \
+    --build-arg TRINO_PORT="${TRINO_PORT}" \
+    --build-arg TRINO_CATALOG="${TRINO_CATALOG}" \
+    --build-arg TRINO_SCHEMA="${TRINO_SCHEMA}" \
+    --build-arg TRINO_JWT_TOKEN="${TRINO_JWT_TOKEN}"
+
+
+# Build daemons image
+echo
+echo "Building daemons image..."
+podman build . \
+    --file pipelines/Containerfile \
+    --target dagster-daemons \
+    --tag ${CONTAINER_REGISTRY}/[project-name]-dagster-daemons:latest

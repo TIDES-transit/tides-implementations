@@ -1,0 +1,214 @@
+version: 2
+
+models:
+  - name: int_gtfs_calendar_long
+    description: >
+      GTFS calendar in long format (one row per combination of feed, service id, service date). The model is created
+      by generating a record for each date between the start_date and end_date for a service_id. A service_id may not
+      have service for all dates in int_gtfs_calendar_long. For instance, if a service_id is only applicable on
+      Mondays, it will have a `has_service` value of `true` for Mondays in dates between start_date and end_date and
+      `false` for other days of the week. This decision is arbitrary and could be revisited if needed (per
+      team discussion on 2025-09-15).
+    columns:
+      - name: _key
+        description: "{{ doc('field_key_feed_service_id_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: service_date
+        description: "{{ doc('field_dim_dates_service_date') }}"
+      - name: has_service
+        description: "{{ doc('field_has_service') }}"
+
+  - name: int_gtfs_calendar_dates
+    description: >
+      Intermediate model for GTFS calendar dates with service availability flags.
+      Transforms calendar_dates exception types into boolean service indicators
+      and adds composite keys for downstream joins.
+    columns:
+      - name: _key
+        description: "{{ doc('field_key_feed_service_id_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+      - name: exception_type
+        description: "{{ doc('field_gtfs_exception_type') }}"
+      - name: service_date
+        description: "{{ doc('field_dim_dates_service_date') }}"
+      - name: has_service
+        description: "{{ doc('field_has_service') }}"
+  - name: int_gtfs_daily_services
+    description: >
+      Model that joins the long calendar model and calendar dates to show what
+      service ids from what feeds are relevant on any given date. The handling of cases with overlapping
+      feed validity occurs downstream in fct_scheduled_trips.
+    columns:
+      - name: _key
+        description: "{{ doc('field_key_feed_service_id_date') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_daily_schedule_feeds_service_date') }}"
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: service_id
+        description: "{{ doc('field_gtfs_service_id') }}"
+
+  - name: int_gtfs_patterns
+    description: >
+      Unique patterns derived from GTFS data. A pattern is a set of stop_ids in a sequence that will be visited on a trip.
+      At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+      This model includes one record for each unique pattern in a given GTFS feed.
+    columns:
+      - name: _key
+        description: "{{ doc('field_gtfs_route_pattern') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+          - unique:
+              config:
+                severity: warn
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: direction_id
+        description: "{{ doc('field_gtfs_direction_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id') }}"
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+          - dbt_utils.expression_is_true:
+              arguments:
+                expression: "{{ column_name }} not like '%:%'"
+              config:
+                severity: warn
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+        data_tests:
+          - relationships:
+              arguments:
+                to: ref('stg_gtfs_shapes')
+                field: shape_id
+              config:
+                where: "shape_id is not null"
+
+  - name: int_gtfs_pattern_stops
+    description: >
+      Pattern stop sequences from GTFS data. A pattern is a set of stop_ids in a sequence that will be visited on a trip.
+      At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+      This model includes one record for each stop in a pattern in a given GTFS feed.
+      Patterns may have the same stop represented multiple times within a sequence, such as for a loop.
+    columns:
+      - name: _key
+        description: "{{ doc('field_gtfs_pattern_stop') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: stop_id
+        description: "{{ doc('field_gtfs_stop_id') }}"
+      - name: stop_sequence
+        description: "{{ doc('field_gtfs_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id') }}"
+
+  - name: int_gtfs_route_pattern_trips
+    description: >
+      Trip-to-pattern mapping from GTFS data. This model includes one record for each trip, its GTFS route_id,
+      and the derived pattern_id in a given GTFS feed. A pattern is a set of stop_ids in a sequence that will
+      be visited on a trip. At [AGENCY], a pattern_id is based in part on the GTFS shape_id value that the pattern corresponds to.
+    columns:
+      - name: _key
+        description: "{{ doc('field_gtfs_route_pattern_trip') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+          - not_null:
+              config:
+                severity: warn
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: route_id
+        description: "{{ doc('field_gtfs_route_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_gtfs_pattern_id') }}"
+      - name: shape_id
+        description: "{{ doc('field_gtfs_shape_id') }}"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+
+  - name: int_gtfs_stop_times_grouped_trip_summary
+    description: >
+      GTFS scheduled trip data summarized by grouping information from stop_times.
+      Results in one row per trip per feed_hash as that trip appears in stop_times.
+    columns:
+      - name: _key
+        description: Unique key composed of feed_hash + trip_id.
+        data_tests:
+          - not_null:
+              config:
+                severity: warn
+          - unique:
+              config:
+                severity: warn
+      - name: _feed_hash
+        description: "{{ doc('field_gtfs__feed_hash') }}"
+      - name: trip_id
+        description: "{{ doc('field_gtfs_trip_id') }}"
+      - name: _date_retrieved
+        description: "{{ doc('field_gtfs_date_retrieved') }}"
+      - name: num_distinct_stops_serviced
+        description: "{{ doc('field_gtfs_num_distinct_stops_serviced') }}"
+      - name: num_scheduled_stops
+        description: "{{ doc('field_gtfs_num_scheduled_stops') }}"
+      - name: first_scheduled_stop_id
+        description: "{{ doc('field_gtfs_first_scheduled_stop_id') }}"
+      - name: last_scheduled_stop_id
+        description: "{{ doc('field_gtfs_last_scheduled_stop_id') }}"
+      - name: has_rider_service
+        description: "{{ doc('field_gtfs_has_rider_service') }}"
+      - name: first_scheduled_arrival_time_secs
+        description: "{{ doc('field_gtfs_first_scheduled_arrival_time_secs') }}"
+      - name: first_scheduled_departure_time_secs
+        description: "{{ doc('field_gtfs_first_scheduled_departure_time_secs') }}"
+      - name: last_scheduled_arrival_time_secs
+        description: "{{ doc('field_gtfs_last_scheduled_arrival_time_secs') }}"
+      - name: last_scheduled_departure_time_secs
+        description: "{{ doc('field_gtfs_last_scheduled_departure_time_secs') }}"

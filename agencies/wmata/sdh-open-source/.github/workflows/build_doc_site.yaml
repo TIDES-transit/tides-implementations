@@ -1,0 +1,70 @@
+name: build-docs-site
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      UV_COMPILE_BYTECODE: 1
+    steps:
+      - name: Checkout source files
+        uses: actions/checkout@v5
+
+      - name: Read tool versions
+        id: tool-versions
+        run: |
+          PYTHON_VERSION=$(grep "^python " .tool-versions | awk '{print $2}')
+          UV_VERSION=$(grep "^uv " .tool-versions | awk '{print $2}')
+          echo "python-version=$PYTHON_VERSION" >> $GITHUB_OUTPUT
+          echo "uv-version=$UV_VERSION" >> $GITHUB_OUTPUT
+          echo "UV_PYTHON=python$PYTHON_VERSION" >> $GITHUB_ENV
+      - name: Set up Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: ${{ steps.tool-versions.outputs.python-version }}
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: ${{ steps.tool-versions.outputs.uv-version }}
+          github-token: ${{ github.token }}
+          enable-cache: true
+          cache-dependency-glob: "**/uv.lock"
+
+      - name: Install Sphinx and dependencies
+        run: |
+          uv sync --locked
+
+      - name: Add Sphinx problem matcher
+        uses: sphinx-doc/github-problem-matcher@master
+
+      - name: Build documentation using build.py
+        run: |
+          uv run python docs/sphinx/build.py
+      - name: Upload static files as artifact/package
+        id: package
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./docs/sphinx/build
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

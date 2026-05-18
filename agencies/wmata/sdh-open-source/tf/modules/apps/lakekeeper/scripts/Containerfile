@@ -1,0 +1,16 @@
+# Simple image that can run curl against a Lakekeeper instance and parse the
+# JSON responses with jq
+
+# Use a lightweight Debian-based image
+FROM debian:bookworm-slim
+
+# Install curl and jq
+RUN apt-get update && \
+    apt-get install -y curl jq \
+    && rm -rf /var/lib/apt/lists/*
+
+# Set the working directory
+WORKDIR /app
+
+# Copy any necessary scripts or files (if needed)
+COPY *.sh .

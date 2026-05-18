@@ -1,0 +1,468 @@
+version: 2
+
+models:
+  - name: int_tides_stop_visits_bus_info
+    description: "Intermediate model (i.e., without data quality filters) with summarized boarding, alighting, arrival, departure, and other events (kneel engaged, ramp deployed, etc.) by trip and stop for each service date."
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }}"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }}"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - name: custom_ramp_deployed_count
+        description: "{{ doc('field_stop_visits_custom_ramp_deployed_count') }}"
+      - name: dwell_imputed
+        description: "{{ doc('field_stop_visits_dwell_imputed') }}"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: int_tides_stop_visits_bus_info_grouped
+    description: "Intermediate model (i.e., without data quality filters) grouped to individual trip_stop_sequence with summarized boarding, alighting, arrival, departure, and other events by trip and stop for each service date. This model only includes grouped records, i.e. only visits that encompass multiple _row_ids"
+    columns:
+      - name: row_hash
+        description: "{{ doc('field_row_hash') }}"
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }}"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }}"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }}"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }}"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - name: custom_ramp_deployed_count
+        description: "{{ doc('field_stop_visits_custom_ramp_deployed_count') }}"
+      - name: dwell_imputed
+        description: "{{ doc('field_stop_visits_dwell_imputed') }}"
+        data_tests:
+          - dbt_utils.accepted_range:
+              arguments:
+                min_value: 0
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+  - name: int_tides_trips_performed_bus_info
+    description: "Intermediate model (i.e., without data quality filters) with trips performed for each service date."
+    columns:
+      - name: service_date
+        description: "{{ doc('field_trips_performed_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_trips_performed_trip_id_performed') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_trips_performed_vehicle_id') }}"
+      - name: trip_id_scheduled
+        description: "{{ doc('field_trips_performed_trip_id_scheduled') }}"
+      - name: route_id
+        description: "{{ doc('field_trips_performed_route_id') }}"
+      - name: route_type
+        description: "{{ doc('field_trips_performed_route_type') }}"
+      - name: ntd_mode
+        description: "{{ doc('field_trips_performed_ntd_mode') }}"
+      - name: route_type_agency
+        description: "{{ doc('field_trips_performed_route_type_agency') }}"
+      - name: shape_id
+        description: "{{ doc('field_trips_performed_shape_id') }}"
+      - name: pattern_id
+        description: "{{ doc('field_trips_performed_pattern_id') }}"
+      - name: direction_id
+        description: "{{ doc('field_trips_performed_direction_id') }}"
+      - name: operator_id
+        description: "{{ doc('field_trips_performed_operator_id') }}"
+      - name: block_id
+        description: "{{ doc('field_trips_performed_block_id') }}"
+      - name: trip_start_stop_id
+        description: "{{ doc('field_trips_performed_trip_start_stop_id') }}"
+      - name: trip_end_stop_id
+        description: "{{ doc('field_trips_performed_trip_end_stop_id') }}"
+      - name: schedule_trip_start
+        description: "{{ doc('field_trips_performed_schedule_trip_start') }}"
+      - name: schedule_trip_end
+        description: "{{ doc('field_trips_performed_schedule_trip_end') }}"
+      - name: actual_trip_start
+        description: "{{ doc('field_trips_performed_actual_trip_start') }}"
+      - name: actual_trip_end
+        description: "{{ doc('field_trips_performed_actual_trip_end') }}"
+      - name: trip_type
+        description: "{{ doc('field_trips_performed_trip_type') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_trips_performed_schedule_relationship') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Scheduled", "Skipped", "Added", "Missing"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+  - name: int_tides_vehicle_locations_bus_info
+    description: "Intermediate model representing vehicle location pings by time."
+    columns:
+      - &vl_location_ping_id
+        name: location_ping_id
+        description: "{{ doc('field_vehicle_locations_location_ping_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+      - &vl_service_date
+        name: service_date
+        description: "{{ doc('field_vehicle_locations_service_date') }}"
+
+      - &vl_event_timestamp
+        name: event_timestamp
+        description: "{{ doc('field_vehicle_locations_event_timestamp') }}"
+
+      - &vl_trip_id_performed
+        name: trip_id_performed
+        description: "{{ doc('field_vehicle_locations_trip_id_performed') }}"
+
+      - &vl_trip_id_scheduled
+        name: trip_id_scheduled
+        description: "{{ doc('field_vehicle_locations_trip_id_scheduled') }}"
+
+      - &vl_trip_stop_sequence
+        name: trip_stop_sequence
+        description: "{{ doc('field_vehicle_locations_trip_stop_sequence') }}"
+
+      - &vl_scheduled_stop_sequence
+        name: scheduled_stop_sequence
+        description: "{{ doc('field_vehicle_locations_scheduled_stop_sequence') }}"
+
+      - &vl_vehicle_id
+        name: vehicle_id
+        description: "{{ doc('field_vehicle_locations_vehicle_id') }}"
+
+      - &vl_device_id
+        name: device_id
+        description: "{{ doc('field_vehicle_locations_device_id') }}"
+
+      - &vl_pattern_id
+        name: pattern_id
+        description: "{{ doc('field_vehicle_locations_pattern_id') }}"
+
+      - &vl_stop_id
+        name: stop_id
+        description: "{{ doc('field_vehicle_locations_stop_id') }}"
+
+      - &vl_current_status
+        name: current_status
+        description: "{{ doc('field_vehicle_locations_current_status') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Incoming at", "Stopped at", "In transit to"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - &vl_latitude
+        name: latitude
+        description: "{{ doc('field_vehicle_locations_latitude') }}"
+
+      - &vl_longitude
+        name: longitude
+        description: "{{ doc('field_vehicle_locations_longitude') }}"
+
+      - &vl_gps_quality
+        name: gps_quality
+        description: "{{ doc('field_vehicle_locations_gps_quality') }}"
+
+      - &vl_heading
+        name: heading
+        description: "{{ doc('field_vehicle_locations_heading') }}"
+
+      - &vl_speed
+        name: speed
+        description: "{{ doc('field_vehicle_locations_speed') }}"
+
+      - &vl_odometer
+        name: odometer
+        description: "{{ doc('field_vehicle_locations_odometer') }}"
+
+      - &vl_schedule_deviation
+        name: schedule_deviation
+        description: "{{ doc('field_vehicle_locations_schedule_deviation') }}"
+
+      - &vl_headway_deviation
+        name: headway_deviation
+        description: "{{ doc('field_vehicle_locations_headway_deviation') }}"
+
+      - &vl_trip_type
+        name: trip_type
+        description: "{{ doc('field_vehicle_locations_trip_type') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values:
+                  [
+                    "In service",
+                    "Deadhead",
+                    "Layover",
+                    "Pullout",
+                    "Pullin",
+                    "Extra Pullout",
+                    "Extra Pullin",
+                    "Deadhead To Layover",
+                    "Deadhead From Layover",
+                    "Other not in service",
+                  ]
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - &vl_schedule_relationship
+        name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+        data_tests:
+          - accepted_values:
+              arguments:
+                values: ["Scheduled", "Skipped", "Added", "Missing"]
+
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+
+  - name: int_tides_vehicle_locations_realtime
+    config:
+      event_time: service_date
+    description: "Intermediate model representing realtime vehicle location pings with current position and status information."
+    columns:
+      - *vl_location_ping_id
+      - *vl_service_date
+      - *vl_event_timestamp
+      - *vl_trip_id_performed
+      - *vl_trip_id_scheduled
+      - *vl_trip_stop_sequence
+      - *vl_scheduled_stop_sequence
+      - *vl_vehicle_id
+      - *vl_device_id
+      - *vl_pattern_id
+      - *vl_stop_id
+      - *vl_current_status
+      - *vl_latitude
+      - *vl_longitude
+      - *vl_gps_quality
+      - *vl_heading
+      - *vl_speed
+      - *vl_odometer
+      - *vl_schedule_deviation
+      - *vl_headway_deviation
+      - *vl_trip_type
+      - <<: *vl_schedule_relationship
+        description: "{{ doc('field_vehicle_locations_schedule_relationship') }}"
+        data_tests: []
+      - name: trip_start_time
+        description: "{{ doc('field_vehicle_locations_trip_start_time') }}"
+      - name: trip_end_time
+        description: "{{ doc('field_vehicle_locations_trip_end_time') }}"
+      - name: route_id
+        description: "{{ doc('field_vehicle_locations_route_id') }}"
+      - name: is_stop_visit
+        description: "{{ doc('field_vehicle_locations_is_stop_visit') }}"
+      - name: apcon
+        description: "{{ doc('field_vehicle_locations_apcon') }}"
+      - name: apcoff
+        description: "{{ doc('field_vehicle_locations_apcoff') }}"
+
+  - name: int_tides_stop_visits_realtime
+    description: "Intermediate realtime model with stop visits filtered from realtime vehicle location data, conforming to TIDES specification for stop visit events."
+    columns:
+      - name: _row_id
+        description: "{{ doc('field_row_id') }}"
+        data_tests:
+          - unique:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+          - not_null:
+              config:
+                severity: warn
+                where: "service_date >= current_date - interval '3' day"
+      - name: service_date
+        description: "{{ doc('field_stop_visits_service_date') }}"
+      - name: trip_id_performed
+        description: "{{ doc('field_stop_visits_trip_id_performed') }}"
+      - name: trip_stop_sequence
+        description: "{{ doc('field_stop_visits_trip_stop_sequence') }}"
+      - name: scheduled_stop_sequence
+        description: "{{ doc('field_stop_visits_scheduled_stop_sequence') }}"
+      - name: pattern_id
+        description: "{{ doc('field_stop_visits_pattern_id') }}"
+      - name: vehicle_id
+        description: "{{ doc('field_stop_visits_vehicle_id') }}"
+      - name: dwell
+        description: "{{ doc('field_stop_visits_dwell') }}"
+      - name: stop_id
+        description: "{{ doc('field_stop_visits_stop_id') }}"
+      - name: timepoint
+        description: "{{ doc('field_stop_visits_timepoint') }}"
+      - name: schedule_arrival_time
+        description: "{{ doc('field_stop_visits_schedule_arrival_time') }}"
+      - name: schedule_departure_time
+        description: "{{ doc('field_stop_visits_schedule_departure_time') }}"
+      - name: actual_arrival_time
+        description: "{{ doc('field_stop_visits_actual_arrival_time') }}"
+      - name: actual_departure_time
+        description: "{{ doc('field_stop_visits_actual_departure_time') }}"
+      - name: boarding_1
+        description: "{{ doc('field_stop_visits_boarding_1') }} - Mapped from realtime APC on (apcon) data"
+      - name: alighting_1
+        description: "{{ doc('field_stop_visits_alighting_1') }} - Mapped from realtime APC off (apcoff) data"
+      - name: boarding_2
+        description: "{{ doc('field_stop_visits_boarding_2') }} - Not available in realtime data"
+      - name: alighting_2
+        description: "{{ doc('field_stop_visits_alighting_2') }} - Not available in realtime data"
+      - name: departure_load
+        description: "{{ doc('field_stop_visits_departure_load') }}"
+      - name: door_open
+        description: "{{ doc('field_stop_visits_door_open') }}"
+      - name: door_close
+        description: "{{ doc('field_stop_visits_door_close') }}"
+      - name: door_status
+        description: "{{ doc('field_stop_visits_door_status') }}"
+      - name: ramp_deployed_time
+        description: "{{ doc('field_stop_visits_ramp_deployed_time') }}"
+      - name: ramp_failure
+        description: "{{ doc('field_stop_visits_ramp_failure') }}"
+      - name: kneel_deployed_time
+        description: "{{ doc('field_stop_visits_kneel_deployed_time') }}"
+      - name: lift_deployed_time
+        description: "{{ doc('field_stop_visits_lift_deployed_time') }}"
+      - name: bike_rack_deployed
+        description: "{{ doc('field_stop_visits_bike_rack_deployed') }}"
+      - name: bike_load
+        description: "{{ doc('field_stop_visits_bike_load') }}"
+      - name: revenue
+        description: "{{ doc('field_stop_visits_revenue') }}"
+      - name: number_of_transactions
+        description: "{{ doc('field_stop_visits_number_of_transactions') }}"
+      - name: schedule_relationship
+        description: "{{ doc('field_stop_visits_schedule_relationship') }}"
+      - name: custom_ramp_deployed_count
+        description: "{{ doc('field_stop_visits_custom_ramp_deployed_count') }}"
+      - name: distance
+        description: "{{ doc('field_stop_visits_distance') }}"

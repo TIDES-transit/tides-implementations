@@ -1,0 +1,146 @@
+version: 2
+
+macros:
+  - name: generate_schema_name
+    description: >
+      Reserved dbt macro to manage how schema names are generated within the dbt project.
+      See: https://docs.getdbt.com/docs/build/custom-schemas for details.
+      Arguments are passed automatically within dbt, this macro is not designed to be called explicitly.
+      Behavior is that in non-deployed environments (determined by target name) custom schema names will be prefixed with a value
+      specified in profiles.yml (e.g., firstname_schemaname.)
+  - name: validate_posix_format_narrow
+    description: Internal macro to validate that a POSIX datetime format string contains only supported tokens.
+    arguments:
+      - name: fmt
+        type: string
+        description: POSIX format string to validate.
+  - name: posix_to_java
+    description: Internal macro to convert POSIX datetime format strings to Java format for Trino compatibility.
+    arguments:
+      - name: fmt
+        type: string
+        description: POSIX format string to convert.
+  - name: gtfs_time_string_to_interval
+    description: >
+      Convert GTFS time strings (HH:MM:SS format where HH can exceed 23) to SQL INTERVAL type
+      in a dialect-agnostic manner. Handles 24+ hour times common in GTFS data.
+      Returns NULL for invalid inputs. Currently only works on DuckDB.
+    arguments:
+      - name: gtfs_time_field
+        type: string
+        description: SQL expression containing GTFS time string (e.g., '26:30:00' for 2:30 AM the next day).
+  - name: parse_datetime
+    description: >
+      Convert an input value to a timestamp or date in a dialect-agnostic fashion.
+      Safely handles invalid inputs, wrong-length strings, and negative values by returning NULL.
+      Works across DuckDB (using strptime) and Trino (using parse_datetime with Java format conversion).
+    arguments:
+      - name: column_name
+        type: string
+        description: The name of the column you want to convert. Column data will be parsed as VARCHAR regardless of incoming data type.
+      - name: format_string
+        type: string
+        description: "POSIX/(DuckDB format specification string)[https://duckdb.org/docs/stable/sql/functions/dateformat.html#format-specifiers] (e.g., '%Y-%m-%d %H:%M:%S'). Automatically converted to Java format for Trino compatibility."
+      - name: expected_length
+        type: int
+        description: Number of characters expected in input; if input is not this length, will be set to null to avoid parsing issues.
+      - name: type
+        type: string
+        description: "Optional parameter specifying return type: 'date' or 'datetime' (default). Determines whether to return date or timestamp."
+  - name: date_add
+    description: >
+      Add an interval to a date/timestamp column and truncate the result.
+      Provides cross-dialect date arithmetic.
+      Note: interval_unit defines what you're adding/subtracting, while date_part defines
+      the precision of the final result after truncation.
+    arguments:
+      - name: column_name
+        type: string
+        description: The date/timestamp column to add the interval to
+      - &interval_value
+        name: interval_value
+        type: number
+        description: The numeric value for the interval (can be negative)
+      - &interval_unit
+        name: interval_unit
+        type: string
+        description: The time unit for the interval (e.g., 'YEAR', 'MONTH', 'DAY', 'HOUR', 'MINUTE', 'SECOND')
+      - name: date_part
+        type: string
+        description: The date unit that you want returned (ex. 'DAY', 'HOUR')
+  - name: timestamp_add
+    description: >
+      Add an interval to a timestamp column.
+      Provides cross-dialect timestamp arithmetic.
+    arguments:
+      - name: column_name
+        type: string
+        description: The timestamp column to add the interval to
+      - *interval_value
+      - *interval_unit
+      - name: has_timezone
+        type: boolean
+        description: >
+          Indicator for whether the input timestamp has a time zone
+          Output will match input type (i.e., if input has time zone, so will output)
+          Defaults to true
+  - name: flex_cast
+    description: Uses dbt built-in casts to cast to different data types, with configurable cast/safe_cast functionality.
+    arguments:
+      - name: expression
+        type: string
+        description: |
+          A column or SQL expression to be cast (ex: 'route_id' or 'datediff(col_a, col_b)')
+      - name: target_type
+        type: string
+        description: |
+          The target type to be cast to (ex: int, bigint, varchar, date)
+      - name: safe
+        type: boolean
+        description: Boolean - if `dbt.safe_cast()` should be used, otherwise uses `dbt.cast()`. Defaults to False.
+  - name: current_date_local
+    description: Returns the current date.
+  - name: bounding_box_filter
+    description: Generate SQL conditions to filter points within a rectangular bounding box.
+    arguments:
+      - name: center_lat
+        type: numeric
+        description: Latitude of the center point (in degrees)
+      - name: center_lon
+        type: numeric
+        description: Longitude of the center point (in degrees)
+      - name: target_lat
+        type: numeric
+        description: Latitude to filter (in degrees)
+      - name: target_lon
+        type: numeric
+        description: Longitude to filter (in degrees)
+      - name: radius_meters
+        type: numeric
+        description: Desired circular search radius in meters
+  - name: haversine_distance_meters
+    description: Calculate the great-circle distance between two points on Earth using the Haversine formula.
+    arguments:
+      - name: lat1
+        type: numeric
+        description: Latitude of first point (in degrees)
+      - name: lon1
+        type: numeric
+        description: Longitude of first point (in degrees)
+      - name: lat2
+        type: numeric
+        description: Latitude of second point (in degrees)
+      - name: lon2
+        description: Longitude of second point (in degrees)
+  - name: make_noon
+    description: Takes a date and returns a timestamp (with America/New_York time zone) of noon on that date.
+    arguments:
+      - name: column_name
+        type: string
+        description: The date column on which to calculate the noon timestamp
+  - name: count_if
+    description: Dialect-agnostic wrapper count if function.
+    arguments:
+      - name: statement
+        type: string
+        description: The expression to count instances of (eg. 'col_name > 0')

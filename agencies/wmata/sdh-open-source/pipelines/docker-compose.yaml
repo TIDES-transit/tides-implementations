@@ -1,0 +1,91 @@
+services:
+  postgresql:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: "dagster"
+      POSTGRES_PASSWORD: "dagsterdagster123"
+      POSTGRES_DB: "dagster"
+    networks:
+      - dagster
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster -d dagster"]
+      interval: 10s
+      timeout: 8s
+      retries: 5
+
+  pipelines:
+    image: [CONTAINER_REGISTRY]/[project-name]-dagster-pipelines:latest
+    hostname: dagster-user-code
+    restart: always
+    env_file: ../.env
+    environment:
+      DAGSTER_POSTGRES_HOSTNAME: "postgresql"
+      DAGSTER_POSTGRES_PORT: "5432"
+      DAGSTER_POSTGRES_USER: "dagster"
+      DAGSTER_POSTGRES_PASSWORD: "dagsterdagster123"
+      DAGSTER_POSTGRES_DB: "dagster"
+      DAGSTER_CURRENT_IMAGE: "[CONTAINER_REGISTRY]/[project-name]-dagster-pipelines:latest"
+    volumes:
+      - ${PWD}/../tf/modules/apps/dagster/config/dagster.yaml:/opt/dagster/home/dagster.yaml
+      - ${PWD}/../tf/modules/apps/dagster/config/workspace.yaml:/opt/dagster/home/workspace.yaml
+    networks:
+      - dagster
+
+  webserver:
+    image: [CONTAINER_REGISTRY]/[project-name]-dagster-daemons:latest
+    entrypoint:
+      - dagster-webserver
+      - -h
+      - "0.0.0.0"
+      - -p
+      - "3000"
+      - -w
+      - workspace.yaml
+    expose:
+      - "3000"
+    ports:
+      - "3000:3000"
+    environment:
+      DAGSTER_POSTGRES_HOSTNAME: "postgresql"
+      DAGSTER_POSTGRES_PORT: "5432"
+      DAGSTER_POSTGRES_USER: "dagster"
+      DAGSTER_POSTGRES_PASSWORD: "dagsterdagster123"
+      DAGSTER_POSTGRES_DB: "dagster"
+    volumes:
+      - ${PWD}/../tf/modules/apps/dagster/config/dagster.yaml:/opt/dagster/home/dagster.yaml
+      - ${PWD}/../tf/modules/apps/dagster/config/workspace.yaml:/opt/dagster/home/workspace.yaml
+    networks:
+      - dagster
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      pipelines:
+        condition: service_started
+
+  daemon:
+    image: [CONTAINER_REGISTRY]/[project-name]-dagster-daemons:latest
+    entrypoint:
+      - dagster-daemon
+      - run
+    restart: on-failure
+    environment:
+      DAGSTER_POSTGRES_HOSTNAME: "postgresql"
+      DAGSTER_POSTGRES_PORT: "5432"
+      DAGSTER_POSTGRES_USER: "dagster"
+      DAGSTER_POSTGRES_PASSWORD: "dagsterdagster123"
+      DAGSTER_POSTGRES_DB: "dagster"
+    volumes:
+      - ${PWD}/../tf/modules/apps/dagster/config/dagster.yaml:/opt/dagster/home/dagster.yaml
+      - ${PWD}/../tf/modules/apps/dagster/config/workspace.yaml:/opt/dagster/home/workspace.yaml
+    networks:
+      - dagster
+    depends_on:
+      postgresql:
+        condition: service_healthy
+      pipelines:
+        condition: service_started
+
+networks:
+  dagster:
+    driver: bridge
+    name: dagster

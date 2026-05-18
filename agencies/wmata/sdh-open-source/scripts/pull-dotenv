@@ -1,0 +1,77 @@
+#!/bin/bash
+set -e
+
+# Pull Dagster build environment variables from Azure Key Vault
+#
+# Usage:
+#   ./scripts/pull-dotenv <environment>              # Pulls to .env
+#   ./scripts/pull-dotenv <environment> <output>     # Pulls to specified file
+#
+# Examples:
+#   ./scripts/pull-dotenv dev           # Pulls dev env vars to .env
+#   ./scripts/pull-dotenv stg .env.stg  # Pulls staging env vars to .env.stg
+#   ./scripts/pull-dotenv prd           # Pulls production env vars to .env
+
+# Configuration - adjust these if your naming conventions differ
+SYSTEM_NAME="${SYSTEM_NAME:-[Project Name]}"
+
+# Parse arguments
+ENVIRONMENT="${1:-}"
+OUTPUT_FILE="${2:-.env}"
+
+if [ -z "$ENVIRONMENT" ]; then
+    echo "Usage: $0 <environment> [output-file]"
+    echo ""
+    echo "Arguments:"
+    echo "  environment   Environment name (e.g., dev, stg, prd)"
+    echo "  output-file   Output file path (default: .env)"
+    echo ""
+    echo "Examples:"
+    echo "  $0 dev              # Pulls dev environment to .env"
+    echo "  $0 stg .env.stg     # Pulls staging environment to .env.stg"
+    exit 1
+fi
+
+# Construct resource names based on naming convention
+# Key Vault: {system_name}-{environment}-kv
+# Secret: dagster-build-env-{system_name}-{environment}
+KEY_VAULT_NAME="${SYSTEM_NAME}-${ENVIRONMENT}-kv"
+SECRET_NAME="dagster-build-env-${SYSTEM_NAME}-${ENVIRONMENT}"
+
+echo "Pulling environment variables from Azure Key Vault..."
+echo "  Key Vault: ${KEY_VAULT_NAME}"
+echo "  Secret:    ${SECRET_NAME}"
+echo "  Output:    ${OUTPUT_FILE}"
+echo ""
+
+# Check if Azure CLI is installed
+if ! command -v az &> /dev/null; then
+    echo "Error: Azure CLI is not installed. Please install it first."
+    exit 1
+fi
+
+# Check if user is logged in
+if ! az account show &> /dev/null; then
+    echo "Error: Not logged in to Azure CLI. Please run 'az login' first."
+    exit 1
+fi
+
+# Pull the secret and write to output file
+if az keyvault secret show \
+    --vault-name "${KEY_VAULT_NAME}" \
+    --name "${SECRET_NAME}" \
+    --query value \
+    -o tsv > "${OUTPUT_FILE}"; then
+    echo "Successfully pulled environment variables to ${OUTPUT_FILE}"
+else
+    echo "Error: Failed to pull secret from Key Vault"
+    echo ""
+    echo "Possible causes:"
+    echo "  - Key Vault '${KEY_VAULT_NAME}' does not exist"
+    echo "  - Secret '${SECRET_NAME}' does not exist"
+    echo "  - You don't have permission to read secrets from this Key Vault"
+    echo ""
+    echo "To grant access, you may need to request the 'Key Vault Secrets User' role"
+    echo "on the Key Vault resource."
+    exit 1
+fi

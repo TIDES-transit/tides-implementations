@@ -1,0 +1,307 @@
+version: 2
+
+sources:
+  - name: vendor_2
+    config:
+      enabled: "{{ target.name != 'consultant' }}"
+    schema: vendor_2
+    tables:
+      - name: dev_txns
+        meta:
+          dagster:
+            asset_key: ["lp_dev_txns"]
+        columns:
+          - name: CUSTOMER_ID
+            description: "{{ doc('field_lp_customer_id') }}"
+          - name: FUNDING_SOURCE_ID
+            description: "{{ doc('field_lp_funding_source_id') }}"
+          - name: PARTICIPANT_ID
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: CHANNEL
+            description: "{{ doc('field_lp_channel') }}"
+          - name: DEVICE_ID
+            description: "{{ doc('field_lp_device_id') }}"
+          - name: DEVICE_ID_ISSUER
+            description: "{{ doc('field_lp_device_id_issuer') }}"
+          - name: DEVICE_TRANSACTION_ID
+            description: "{{ doc('field_lp_device_transaction_id') }}"
+          - name: DIRECTION
+            description: "{{ doc('field_lp_direction') }}"
+          - name: GRANTED_ZONE_IDS
+            description: "{{ doc('field_lp_granted_zone_ids') }}"
+          - name: INFILE_NAME
+            description: "{{ doc('field_lp_infile_name') }}"
+          - name: LATITUDE
+            description: "{{ doc('field_lp_latitude') }}"
+          - name: vendor_2_TRANSACTION_ID
+            description: "{{ doc('field_lp_vendor_2_transaction_id') }}"
+          - name: LOCATION_ID
+            description: "{{ doc('field_lp_location_id') }}"
+          - name: LOCATION_NAME
+            description: "{{ doc('field_lp_location_name') }}"
+          - name: LONGITUDE
+            description: "{{ doc('field_lp_longitude') }}"
+          - name: ONWARD_ZONE_IDS
+            description: "{{ doc('field_lp_onward_zone_ids') }}"
+          - name: PROCESSED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_processed_timestamp_utc') }}"
+          - name: RECORD_UPDATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: ROUTE_ID
+            description: "{{ doc('field_lp_route_id') }}"
+          - name: THEMODE
+            description: "{{ doc('field_lp_themode') }}"
+          - name: TRANSACTION_OUTCOME
+            description: "{{ doc('field_lp_transaction_outcome') }}"
+          - name: TRANSACTION_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_transaction_timestamp_utc') }}"
+          - name: TRIP_ATTRIBUTES
+            description: "{{ doc('field_lp_trip_attributes') }}"
+          - name: TYPE
+            description: "{{ doc('field_lp_type') }}"
+          - name: VEHICLE_ID
+            description: "{{ doc('field_lp_vehicle_id') }}"
+          - name: ZONE_ID
+            description: "{{ doc('field_lp_zone_id') }}"
+      - name: dev_txn_purchases
+        meta:
+          dagster:
+            asset_key: ["lp_dev_txn_purchases"]
+        columns:
+          - name: PARTICIPANT_ID
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: CHANNEL
+            description: "{{ doc('field_lp_channel') }}"
+          - name: CORRELATED_PURCHASE_ID
+            description: "{{ doc('field_lp_correlated_purchase_id') }}"
+          - name: DESCRIPTION
+            description: "{{ doc('field_lp_description') }}"
+          - name: INDICATIVE_AMOUNT
+            description: "{{ doc('field_lp_indicative_amount') }}"
+          - name: INFILE_NAME
+            description: "{{ doc('field_lp_infile_name') }}"
+          - name: vendor_2_TRANSACTION_ID
+            description: "{{ doc('field_lp_vendor_2_transaction_id') }}"
+          - name: PRODUCT_ID
+            description: "{{ doc('field_lp_product_id') }}"
+          - name: PURCHASE_ID
+            description: "{{ doc('field_lp_purchase_id') }}"
+          - name: RECORD_UPDATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: TRANSACTION_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_transaction_timestamp_utc') }}"
+      - name: micropays
+        meta:
+          dagster:
+            asset_key: ["lp_micropays"]
+        columns:
+          - name: CUSTOMER_ID
+            description: "{{ doc('field_lp_customer_id') }}"
+          - name: FUNDING_SOURCE_ID
+            description: "{{ doc('field_lp_funding_source_id') }}"
+          - name: PARTICIPANT_ID
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: AGGREGATION_ID
+            description: "{{ doc('field_lp_aggregation_id') }}"
+          - name: CHANNEL
+            description: "{{ doc('field_lp_channel') }}"
+          - name: CHARGE_AMOUNT
+            description: "{{ doc('field_lp_charge_amount') }}"
+          - name: CHARGE_TYPE
+            description: "{{ doc('field_lp_charge_type') }}"
+          - name: CURRENCY_CODE
+            description: "{{ doc('field_lp_currency_code') }}"
+          - name: INFILE_NAME
+            description: "{{ doc('field_lp_infile_name') }}"
+          - name: MICROPAYMENT_ID
+            description: "{{ doc('field_lp_micropayment_id') }}"
+          - name: NOMINAL_AMOUNT
+            description: "{{ doc('field_lp_nominal_amount') }}"
+          - name: PAYMENT_LIABILITY
+            description: "{{ doc('field_lp_payment_liability') }}"
+          - name: RECORD_UPDATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: STATUS
+            description: "{{ doc('field_lp_status') }}"
+          - name: type
+            description: "{{ doc('field_lp_type') }}"
+      - name: settlements
+        meta:
+          dagster:
+            asset_key: ["lp_settlements"]
+        columns:
+          - name: CUSTOMER_ID
+            description: "{{ doc('field_lp_customer_id') }}"
+          - name: FUNDING_SOURCE_ID
+            description: "{{ doc('field_lp_funding_source_id') }}"
+          - name: PARTICIPANT_ID
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: ACQUIRER_CODE
+            description: "{{ doc('field_lp_acquirer_code') }}"
+          - name: ACQUIRER_RESPONSE_RRN
+            description: "{{ doc('field_lp_acquirer_response_rrn') }}"
+          - name: AGGREGATION_ID
+            description: "{{ doc('field_lp_aggregation_id') }}"
+          - name: AMOUNT
+            description: "{{ doc('field_lp_amount') }}"
+          - name: CHANNEL
+            description: "{{ doc('field_lp_channel') }}"
+          - name: CURRENCY_CODE
+            description: "{{ doc('field_lp_currency_code') }}"
+          - name: EXTERNAL_REFERENCE_NUMBER
+            description: "{{ doc('field_lp_external_reference_number') }}"
+          - name: INFILE_NAME
+            description: "{{ doc('field_lp_infile_name') }}"
+          - name: vendor_2_REFERENCE_NUMBER
+            description: "{{ doc('field_lp_vendor_2_reference_number') }}"
+          - name: RECORD_UPDATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: REFUND_ID
+            description: "{{ doc('field_lp_refund_id') }}"
+          - name: REQUEST_CREATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_request_created_timestamp_utc') }}"
+          - name: RESPONSE_CREATED_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_response_created_timestamp_utc') }}"
+          - name: RETRIEVAL_REFERENCE_NUMBER
+            description: "{{ doc('field_lp_retrieval_reference_number') }}"
+          - name: SETTLEMENT_ID
+            description: "{{ doc('field_lp_settlement_id') }}"
+          - name: SETTLEMENT_STATUS
+            description: "{{ doc('field_lp_settlement_status') }}"
+          - name: SETTLEMENT_TYPE
+            description: "{{ doc('field_lp_settlement_type') }}"
+          - name: TRANSACTION_TIMESTAMP_UTC
+            description: "{{ doc('field_lp_transaction_timestamp_utc') }}"
+
+      - name: connections
+        meta:
+          dagster:
+            asset_key: ["lp_connections"]
+        columns:
+          - name: connection_id
+            description: "{{ doc('field_lp_connection_id') }}"
+          - name: from_trip_id
+            description: "{{ doc('field_lp_from_trip_id') }}"
+          - name: to_trip_id
+            description: "{{ doc('field_lp_to_trip_id') }}"
+          - name: journey_id
+            description: "{{ doc('field_lp_journey_id') }}"
+          - name: participant_id
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: record_updated_timestamp_utc
+            description: "{{ doc('record_updated_timestamp_utc') }}"
+          - name: channel
+            description: "{{ doc('field_lp_channel') }}"
+          - name: infile_name
+            description: "{{ doc('field_lp_infile_name') }}"
+
+      - name: fares
+        meta:
+          dagster:
+            asset_key: ["lp_fares"]
+        columns:
+          - name: trip_id
+            description: "{{ doc('field_lp_trip_id') }}"
+          - name: boarded_vendor_2_txn_id
+            description: "{{ doc('field_lp_boarded_vendor_2_txn_id') }}"
+          - name: alighted_vendor_2_txn_id
+            description: "{{ doc('field_lp_alighted_vendor_2_txn_id') }}"
+          - name: currency_code
+            description: "{{ doc('field_lp_currency_code') }}"
+          - name: fare_amount
+            description: "{{ doc('field_lp_fare_amount') }}"
+          - name: adjustment_amount
+            description: "{{ doc('field_lp_adjustment_amount') }}"
+          - name: adjustment_description
+            description: "{{ doc('field_lp_adjustment_description') }}"
+          - name: trip_processed_timestamp_utc
+            description: "{{ doc('field_lp_trip_processed_timestamp_utc') }}"
+          - name: service_name
+            description: "{{ doc('field_lp_service_name') }}"
+          - name: journey_id
+            description: "{{ doc('field_lp_journey_id') }}"
+          - name: participant_id
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: record_updated_timestamp_utc
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: channel
+            description: "{{ doc('field_lp_channel') }}"
+          - name: infile_name
+            description: "{{ doc('field_lp_infile_name') }}"
+
+      - name: micropay_dev_txns
+        meta:
+          dagster:
+            asset_key: ["lp_micropay_dev_txns"]
+        columns:
+          - name: vendor_2_transaction_id
+            description: "{{ doc('field_lp_vendor_2_transaction_id') }}"
+          - name: micropayment_id
+            description: "{{ doc('field_lp_micropayment_id') }}"
+          - name: participant_id
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: record_updated_timestamp_utc
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: channel
+            description: "{{ doc('field_lp_channel') }}"
+          - name: infile_name
+            description: "{{ doc('field_lp_infile_name') }}"
+
+      - name: transfers
+        meta:
+          dagster:
+            asset_key: ["lp_transfers"]
+        columns:
+          - name: transfer_id
+            description: "{{ doc('field_lp_transfer_id') }}"
+          - name: from_service_name
+            description: "{{ doc('field_lp_from_service_name') }}"
+          - name: to_service_name
+            description: "{{ doc('field_lp_to_service_name') }}"
+          - name: from_trip_id
+            description: "{{ doc('field_lp_from_trip_id') }}"
+          - name: to_trip_id
+            description: "{{ doc('field_lp_to_trip_id') }}"
+          - name: journey_id
+            description: "{{ doc('field_lp_journey_id') }}"
+          - name: participant_id
+            description: "{{ doc('field_lp_participant_id') }}"
+          - name: record_updated_timestamp_utc
+            description: "{{ doc('field_lp_record_updated_timestamp_utc') }}"
+          - name: channel
+            description: "{{ doc('field_lp_channel') }}"
+          - name: infile_name
+            description: "{{ doc('field_lp_infile_name') }}"
+
+      - name: evt_txn_recv
+        description: Real-time vendor_2 transaction data.
+        meta:
+          dagster:
+            asset_key: ["lp_evt_txn_recv"]
+        columns:
+          - name: FUNDING_SRC_ID
+            description: "{{ doc('field_lp_funding_source_id')}}"
+          - name: CUSTOMER_ID
+            description: "{{ doc('field_lp_customer_id')}}"
+          - name: EVENT_ID
+            description: "{{ doc('field_lp_event_id')}}"
+          - name: CREATED_TS
+            description: "{{ doc('field_lp_request_created_timestamp_utc') }}"
+          - name: DB_INSERTED_TS
+            description: "{{ doc('field_lp_db_inserted_ts') }}"
+          - name: TXN_ID
+            description: "{{ doc('field_lp_vendor_2_transaction_id') }}"
+          - name: DEVICE_ID
+            description: "{{ doc('field_lp_device_id') }}"
+          - name: DEVICE_TXN_ID
+            description: "{{ doc('field_lp_device_transaction_id') }}"
+          - name: TXN_TS
+            description: "{{ doc('field_lp_txn_ts') }}"
+          - name: TXN_RECV_TS
+            description: "{{ doc('field_lp_txn_recv_ts') }}"
+          - name: STOP_LOC_ID
+            description: "{{ doc('field_lp_stop_loc_id') }}"
+          - name: TXN_TYPE
+            description: "{{ doc('field_lp_txn_type') }}"
+          - name: TXN_OUTCOME
+            description: "{{ doc('field_lp_transaction_outcome') }}"

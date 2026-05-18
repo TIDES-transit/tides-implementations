@@ -1,0 +1,126 @@
+mezzanine_id,station_code,mezzanine_name
+1,A01,"Metro Center, W"
+2,A02,"Farragut North, SE"
+3,A02,"Farragut North, NW"
+4,A02,"Farragut North, NE"
+5,A03,"Dupont Circle, S"
+6,A03,"Dupont Circle, N"
+7,A04,Woodley Park
+8,A05,Cleveland Park
+9,A06,Van Ness-UDC
+10,A07,Tenleytown-AU
+11,A08,"Friendship Heights, N"
+12,A09,Bethesda
+13,A10,Medical Center
+14,A11,Grosvenor-Strathmore
+15,A12,White Flint
+16,A13,Twinbrook
+17,A14,Rockville
+18,A15,Shady Grove
+19,A01,"Metro Center, E"
+20,B01,"Gallery Place, W"
+21,B01,"Gallery Place, E"
+22,B02,"Judiciary Square, W"
+23,B02,"Judiciary Square, E"
+24,B03,"Union Station, S"
+25,B03,"Union Station, N"
+26,B04,Rhode Island Ave
+27,B05,Brookland-CUA
+28,B06,Fort Totten
+29,B07,Takoma
+30,B08,"Silver Spring, S"
+31,B08,"Silver Spring, N"
+32,B09,Forest Glen
+33,B10,Wheaton
+34,B11,Glenmont
+35,C01,"Metro Center, N"
+36,C02,"McPherson Square, E"
+37,C02,"McPherson Square, W"
+38,C03,"Farragut West, E"
+39,C03,"Farragut West, W"
+40,C04,Foggy Bottom-GWU
+41,C05,Rosslyn
+42,C06,Arlington Cemetery
+43,C07,Pentagon
+44,C08,Pentagon City
+45,C09,Crystal City
+46,C10,"Ronald Reagan Washington National Airport, S"
+47,C12,Braddock Road
+48,C13,King St-Old Town
+49,C14,Eisenhower Ave
+50,C15,"Huntington, N"
+51,C15,"Huntington, S"
+52,C01,"Metro Center, S"
+53,D01,Federal Triangle
+54,D02,"Smithsonian, N"
+55,D02,"Smithsonian, S"
+56,D03,"L'Enfant Plaza, W"
+57,D03,"L'Enfant Plaza, E"
+58,D04,Federal Center SW
+59,D05,Capitol South
+60,D06,Eastern Market
+61,D07,Potomac Ave
+62,D08,"Stadium-Armory, S"
+63,D08,"Stadium-Armory, N"
+64,D09,Minnesota Ave
+65,D10,Deanwood
+66,D11,Cheverly
+67,D12,Landover
+68,D13,New Carrollton
+69,F01,"Gallery Place, N"
+70,E01,Mt Vernon Sq
+71,E02,"Shaw-Howard Univ, S"
+72,E02,"Shaw-Howard Univ, N"
+73,E03,"U Street, E"
+74,E03,"U Street, W"
+75,E04,Columbia Heights
+76,E05,Georgia Ave-Petworth
+77,E07,West Hyattsville
+78,E08,Prince George's Plaza
+79,E09,College Park-U of Md
+80,E10,Greenbelt
+81,F02,Archives
+82,F03,"L'Enfant Plaza, N"
+83,F04,Waterfront
+84,F05,"Navy Yard-Ballpark, E"
+85,F06,"Anacostia, N"
+86,F07,Congress Heights
+87,F09,Naylor Road
+88,F10,Suitland
+89,F11,Branch Ave
+90,G01,Benning Road
+91,G02,Capitol Heights
+92,G03,Addison Road
+93,C10,"Ronald Reagan Washington National Airport, N"
+94,J02,Van Dorn Street
+95,J03,Franconia-Springfield
+96,K01,Court House
+97,K02,Clarendon
+98,K03,Virginia Square-GMU
+99,K04,Ballston-MU
+100,K05,East Falls Church
+101,K06,West Falls Church
+102,K07,Dunn Loring
+103,K08,Vienna
+104,A08,"Friendship Heights, S"
+105,F05,"Navy Yard-Ballpark, W"
+106,F06,"Anacostia, S"
+107,F08,Southern Ave
+108,B35,"NoMa-Gallaudet U, S"
+109,B35,"NoMa-Gallaudet U, N"
+110,G04,Morgan Boulevard
+111,G05,Largo Town Center
+112,C13,"King St-Old Town, N"
+113,C05,"Rosslyn, II"
+114,N01,McLean
+115,N02,Tysons Corner
+116,N03,Greensboro
+117,N04,Spring Hill
+118,N06,Wiehle-Reston East
+119,N07,Reston Town Center
+120,N08,Herndon
+121,N09,Innovation Center
+122,N10,Dulles Airport
+123,N11,Loudoun Gateway
+124,N12,Ashburn
+125,C11,Potomac Yard

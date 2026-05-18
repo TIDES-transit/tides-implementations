@@ -1,0 +1,26 @@
+# Example pipeline schema configuration
+# Each source table has a YAML file defining its schema for the Oracle ingestion pipeline.
+#
+# Fields:
+#   schema:             Oracle schema name
+#   date_col:           Column used for incremental date filtering
+#   redacted_cols:      Columns to hash (PII redaction) during extraction
+#   partition_col:      Column used for Iceberg table partitioning
+#   transform_type:     Partition transform (day, month, identity)
+#   overwrite_strategy: How to handle overwrites (date_equals, time_between, identity_equals)
+#   query_cols:         Columns to SELECT from the source table
+#
+# See pipelines/resources/utils.py for how these fields drive query generation.
+
+schema: "SOURCE_SCHEMA"
+date_col: "INSERTED_DTM"
+redacted_cols:
+  - SENSITIVE_COLUMN
+partition_col: "INSERTED_DTM"
+transform_type: month
+overwrite_strategy: date_equals
+query_cols:
+  - COLUMN_A
+  - COLUMN_B
+  - COLUMN_C
+  - INSERTED_DTM

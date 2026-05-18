@@ -1,0 +1,75 @@
+#!/usr/bin/env bash
+
+# 0. Ensure script isn't being run with sudo
+if [ "$(id -u)" = 0 ]; then
+   echo "This script cannot be run as root."
+   echo "Please run as your regular user and enter your sudo password when prompted."
+   exit 1
+fi
+
+set -e
+
+# 1. Update all system packages and ensure core dependencies are installed
+echo
+echo "Updating system..."
+sudo apt update
+sudo apt upgrade -y
+sudo apt install -y unzip build-essential
+echo "Updated system"
+echo
+
+# 2. Download and install asdf if not present
+if command -v asdf >/dev/null 2>&1; then
+    echo "asdf already installed"
+else
+    echo
+    echo "Installing asdf..."
+    curl -sL https://github.com/asdf-vm/asdf/releases/download/v0.18.0/asdf-v0.18.0-linux-amd64.tar.gz | sudo tar -xvzC /usr/local/bin
+    echo 'export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"' >> ~/.bashrc
+    export PATH="${ASDF_DATA_DIR:-$HOME/.asdf}/shims:$PATH"
+    echo "asdf installed"
+    echo
+fi
+
+# 3. Install gh CLI if not present
+if command -v gh >/dev/null 2>&1; then
+    echo "gh already installed"
+else
+    echo
+    echo "Installing github-cli via asdf..."
+    asdf plugin add github-cli
+    # Set version in home dir so gh is available outside of any project
+    (cd ~ && asdf set github-cli latest && asdf install)
+    echo "gh installed"
+    echo
+fi
+
+# 4. Authenticate to GitHub
+if gh auth status >/dev/null 2>&1; then
+    echo "GitHub already authenticated"
+else
+    echo
+    echo "Authenticating to GitHub..."
+    echo
+    echo "1. Use ctrl+click to open the link"
+    echo "2. Paste the automatically-copied code when prompted in the browser"
+    echo "3. If needed, press enter back in this terminal until the script continues"
+    echo
+
+    if gh auth login --web --git-protocol https --clipboard; then
+        gh auth setup-git
+        echo
+        echo "Authentication to GitHub finished"
+        echo
+    else
+        echo
+        echo "Authentication to GitHub failed, re-run the script to try again or run 'gh auth' manually"
+        echo
+    fi
+fi
+
+echo
+echo "Next steps:"
+echo "  1) Close and reopen your WSL shell to refresh your environment"
+echo "  2) Clone the repo: git clone https://github.com/[ORGANIZATION]/[project-name].git ~/[project-name]"
+echo "  3) Run ./scripts/bootstrap-dev to set up the development environment"
