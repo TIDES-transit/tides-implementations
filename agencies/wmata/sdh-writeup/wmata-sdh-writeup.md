@@ -51,7 +51,7 @@ At a high level, the pipeline and infrastructure work as follows:
 
 **Dagster** (hosted in Azure Container Apps) executes ingest pipelines, either on a schedule (e.g. daily, hourly) or according to a sensor or trigger (e.g. new data detected in an upstream bucket). These pipelines pull data from an upstream source location and save it in Iceberg-formatted files in Azure Blob Storage. The Dagster pipeline code is written in version-controlled Python.
 
-![A screenshot of a Dagster user interface showing a lineage between different tasks][assets/dagster-lineage.png]
+![A screenshot of a Dagster user interface showing a lineage between different tasks](assets/dagster-lineage.png)
 
 *Figure 2\. Dagster ingest pipeline flow.*
 
