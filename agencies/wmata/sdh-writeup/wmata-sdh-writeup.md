@@ -29,7 +29,7 @@ The SMART Data Hub architecture is based on a set of design principles:
 
 # **Prototype Architecture**
 
-![Diagram showing SMART Data Hub architecture, a cloud-based data platform hosted in Azure using Dagster, dbt, Iceberg, and Trino](assets/sdh-architecture.png)
+![Diagram showing SMART Data Hub architecture, a cloud-based data platform hosted in Azure using Dagster, dbt, Iceberg, and Trino](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/sdh-architecture.png?raw=true)
 
 *Figure 1\. High-level architecture of the SMART Data Hub prototype.*
 
@@ -51,23 +51,23 @@ At a high level, the pipeline and infrastructure work as follows:
 
 **Dagster** (hosted in Azure Container Apps) executes ingest pipelines, either on a schedule (e.g. daily, hourly) or according to a sensor or trigger (e.g. new data detected in an upstream bucket). These pipelines pull data from an upstream source location and save it in Iceberg-formatted files in Azure Blob Storage. The Dagster pipeline code is written in version-controlled Python.
 
-![A screenshot of a Dagster user interface showing a lineage between different tasks](assets/dagster-lineage.png)
+![A screenshot of a Dagster user interface showing a lineage between different tasks](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/dagster-lineage.png?raw=true)
 
 *Figure 2\. Dagster ingest pipeline flow.*
 
 After data has arrived in the platform, Dagster executes **dbt**. This step runs version-controlled SQL code to clean data, transform data into useful formats, and calculate aggregations and metrics according to business logic requirements. This includes transforming the raw data into the relevant TIDES format and calculating ridership metrics based on the TIDES-formatted data. These transformations are executed by Trino, the SQL query engine, which interfaces with the Iceberg-formatted data in Blob Storage.
 
-![A screenshot of a file in GitHub with "blame" view showing a history of different user edits](assets/example-git-history.png)
+![A screenshot of a file in GitHub with "blame" view showing a history of different user edits](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/example-git-history.png?raw=true)
 
 *Figure 3\. TIDES dbt model with commit history on GitHub.*
 
 As Dagster and dbt run, metadata is pushed to **OpenMetadata**, the data catalog. This allows end users to see documentation about the data itself (table and column descriptions) alongside information from the pipeline runs, like current test results.
 
-![A screenshot of an OpenMetadata user interface showing table and column descriptions](assets/omd-table-desc-tides-table.png)
+![A screenshot of an OpenMetadata user interface showing table and column descriptions](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/omd-table-desc-tides-table.png?raw=true)
 
 *Figure 4\. OpenMetadata data catalog showing table and column documentation*
 
-![A screenshot of an OpenMetadata user interface showing some passing test results](assets/omd-test-results-tides-table.png)
+![A screenshot of an OpenMetadata user interface showing some passing test results](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/omd-test-results-tides-table.png?raw=true)
 
 *Figure 5\. OpenMetadata data catalog showing pipeline metadata.*
 
@@ -75,7 +75,7 @@ As Dagster and dbt run, metadata is pushed to **OpenMetadata**, the data catalog
 
 Within the dbt project, we are transforming raw data from source systems into TIDES and then using that TIDES-formatted data to calculate ridership metrics.
 
-![A diagram showing a data flow from left to right with data going through bronze, silver, and gold medallion layers with iterative quality refinements to produce a TIDES data table](assets/tides-flow.png)
+![A diagram showing a data flow from left to right with data going through bronze, silver, and gold medallion layers with iterative quality refinements to produce a TIDES data table](https://github.com/TIDES-transit/tides-implementations/blob/main/agencies/wmata/sdh-writeup/assets/tides-flow.png?raw=true)
 
 *Figure 5\. dbt model lineage showing medallion architecture.*
 
