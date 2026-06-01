@@ -11,7 +11,7 @@ Garin Wally — Transit Analyst, Mountain Line
 
 ## What's being implemented
 
-Mountain Line is building a Python-based "analyst on a laptop" implementation pattern for TIDES — Level 0 in the [TIDES Common Architecture Framework](https://tides-transit.org). The work in progress includes:
+Mountain Line is building a Python-based "analyst on a laptop" implementation pattern for TIDES — Level 0 in the [TIDES Common Architecture Framework](https://tides-transit.org/main/resources/). The work in progress includes:
 
 - **NTD reporting pipeline.** Co-designed with MobilityData as the small-urban anchor of a multi-agency NTD reporting pilot framework (alongside WMATA's large-agency pilot). The framework runs TIDES-derived NTD metrics in parallel with existing reporting for FY2027, with phased coverage of fixed-route monthly metrics, demand-response metrics, and full annual rollup.
 - **Open-source schema validation library.** [`polar-tides`](https://github.com/WindfallLabs/polartides) — a Python library for validating [Polars](https://pola.rs/) DataFrames against TIDES table schemas, built on [`dataframely`](https://github.com/Quantco/dataframely). All TIDES tables covered as `dataframely.Schema` classes with column types, nullability constraints, and value-enforcement rules for enum fields. Released as alpha (v0.1.0a1) under the MIT License.
